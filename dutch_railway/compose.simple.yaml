@@ -1,0 +1,41 @@
+services:
+  airflow:
+    build: .                               
+    command: standalone
+    user: "${AIRFLOW_UID:-50000}:0"        
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"   # local only: skip the login page
+      DUTCH_RAILWAY_DB_URL: postgresql://${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}:${DUTCH_RAILWAY_DB_PASSWORD:-dutch_railway_password}@dutch_railway_db:5432/${DUTCH_RAILWAY_DB_NAME:-dutch_railway_db}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags           
+      - ./data:/opt/airflow/data           
+      - ./logs:/opt/airflow/logs           
+    depends_on:
+      dutch_railway_db:
+        condition: service_healthy
+
+  dutch_railway_db:                        
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}
+      POSTGRES_PASSWORD: ${DUTCH_RAILWAY_DB_PASSWORD:-dutch_railway_password}
+      POSTGRES_DB: ${DUTCH_RAILWAY_DB_NAME:-dutch_railway_db}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "5433:5432"
+    volumes:
+      - dutch_railway_data:/var/lib/postgresql/data
+
+volumes:
+  dutch_railway_data:

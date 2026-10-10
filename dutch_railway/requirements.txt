@@ -1,0 +1,2 @@
+# ETL runtime deps (installed into the Airflow image). Airflow itself comes from the base image.
+duckdb==1.5.6
