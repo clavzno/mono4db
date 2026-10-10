@@ -1,0 +1,172 @@
+%% 
+%% Technical Paper Template for CCS
+%%
+%% Adapted from SIGCONF Proceedings template
+%%
+
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigconf, pbalance]{acmart}
+
+\usepackage{tabularx}
+\usepackage{array}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%%
+%% Remove the ACM References statement and copyright notice.
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+
+
+%%
+%% Majority of ACM publications use numbered citations and references.
+%% For managing citations, it is recommended to use bibliography files in BibTeX format.
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-reference.bib file enumerating your References.
+
+
+%% %% %% %% %%
+%% Start of the actual paper.
+\begin{document}
+
+%%
+%% Paper title.
+\title{Rymming Stroking and Sucking}
+
+%%
+%% Authors
+\author{Jack Clavano}
+\affiliation{%
+  \institution{De La Salle University}
+  \city{Manila}
+  \country{Philippines}}
+\email{angelica\_therese\_clavano@dlsu.edu.ph}
+
+\author{Enrique Miguel Aragon}
+\affiliation{%
+  \institution{De La Salle University}
+  \city{Manila}
+  \country{Philippines}}
+\email{enrique\_aragon@dlsu.edu.ph}
+
+\author{Jacoba Ysabelle Luna}
+\affiliation{%
+  \institution{De La Salle University}
+  \city{Manila}
+  \country{Philippines}}
+\email{jacoba\_luna@dlsu.edu.ph}
+
+\author{Zhean Robby Ganituen}
+\affiliation{%
+  \institution{De La Salle University}
+  \city{Manila}
+  \country{Philippines}}
+\email{Zhean\_robby\_ganituen@dlsu.edu.ph}
+
+
+%%
+%% By default, the full list of authors will be used in the page headers.
+%% Often, this list is too long and will overlap other information printed in the page headers. 
+%% This command allows the author to define a more concise list of authors' names for this purpose.
+\renewcommand{\shortauthors}{Trovato et al.}
+
+
+%%
+%% The abstract is a short summary of the work to be presented in the article.
+\begin{abstract}
+This set of guidelines for formatting your research paper has been adapted from the formatting guidelines for ACM SIG Proceedings. The Abstract should consist of 150 to 250 words in a single paragraph that provides the reader with a summary of your research/project and what you intend to do. It gives a brief description of the motivation for your research/project, the problem you intend to cover, the purpose and method for conducting your study, and your results and findings.
+\end{abstract}
+
+
+%%
+%% Keywords
+%% The author(s) should pick words that accurately describe the work being presented. 
+%% Separate the keywords with commas.
+%% Aside from proper nouns and acronyms, only the first letter of the first keyword should be capitalized
+\keywords{Data Warehouse, ETL, OLAP, Query Processing, Query Optimization}
+
+%%
+%% This command processes the author and affiliation and title information and builds the first part of the formatted document.
+\maketitle
+
+\input{chapters/introduction}
+\input{chapters/data_warehouse}
+\input{chapters/etl_script}
+\input{chapters/olap_application}
+\input{chapters/qpo}
+\input{chapters/results_and_analysis}
+\input{chapters/conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\section*{Declaration of Generative AI Usage}
+
+% [ fr: @zrygan; @to: all
+%   If you used a different model indicate in the "we used ..." and add
+%   a market like (*, **, etc).
+% 
+%   Then mark it after \item
+% ]
+During the conduct of this hands-on activity, we used Claude Opus 5.5 to assist with the following tasks:
+\begin{itemize}
+  \item Help understand documentation of Docker and Apache Airflow. 
+  \textbf{Sample prompt} \emph{Do not give me specific code, simply guide me like a teacher. Can you help
+  me understand [what Apache Airflow is for]/[how to integrate it into Docker]. I have experience with data
+  modelling so try to use analogies in that field.}
+\end{itemize}
+
+Statement of Accountability. By submitting this report, we explicitly affirm the following:
+
+\begin{itemize}
+  \item We accept full accountability for the accuracy and integrity of all content in our written and oral reports. 
+  \item We have examined and validated all AI-assisted contributions included in our written and oral reports.
+  \item We acknowledge the inherent limitations of GenAI systems, including the potential for technical errors, factual inaccuracies, hallucinations, or biases.
+  \item We fully comprehend the AI-generated outputs used in our written and oral reports. We understand that the inability to explain these concepts in our own words during evaluations will be treated as a violation of academic integrity, and we accept the consequences of any such misuse.
+\end{itemize}
+
+\section*{Record of Contribution}
+
+% [ fr: @zrygan; @to: all
+%   Task 1 & 
+%   Jack's 
+%   & 
+%   % Ena's
+%   & 
+%   % Koby's
+%   & 
+%   % Zen's
+%   \\
+% ]
+\begin{table}[h]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\columnwidth}{|>{\raggedright\arraybackslash}X|*{4}{>{\centering\arraybackslash}X|}}
+\hline
+\textbf{Task} & \textbf{Clavano} & \textbf{Aragon} & \textbf{Luna} & \textbf{Ganituen} \\
+\hline
+Task 1 & 
+% Jack's 
+& 
+% Ena's
+& 
+% Koby's
+& 
+% Zen's
+\\
+\hline
+\end{tabularx}
+\caption{Member contributions}
+\label{tab:contributions}
+\end{table}
+
+
+\end{document}
