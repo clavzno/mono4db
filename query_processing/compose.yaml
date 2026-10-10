@@ -1,0 +1,45 @@
+# query_processing: Python query benchmark + its Postgres (rymmers_db).
+#
+# Run from the repo root (`docker compose up`, via `include:`) or from this folder.
+# Credentials come from query_processing/.env (see .env.example); defaults are used if it is missing.
+
+services:
+  query_processing:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    command: python -m src.main
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: ${RYMMERS_DB_USER:-rymmers}
+      DB_PASSWORD: ${RYMMERS_DB_PASSWORD:-rymmers_password}
+      DB_NAME: ${RYMMERS_DB_NAME:-rymmers_db}
+    volumes:
+      - ./sql:/app/sql
+      - ./dumps:/app/dumps
+      - ./queries:/app/queries
+      - ./results:/app/results
+      - ./src:/app/src
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${RYMMERS_DB_USER:-rymmers}
+      POSTGRES_PASSWORD: ${RYMMERS_DB_PASSWORD:-rymmers_password}
+      POSTGRES_DB: ${RYMMERS_DB_NAME:-rymmers_db}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

@@ -1,56 +1,11 @@
 # [fr: @zrygan; @to: all]
 # this message is probably for me in the future (i have not used Docker)
-# to add a new dependency simply add:
-# 
-#   ```
-#   <name_of_service>:
-#     image: <#>
-#     environment: <optional; for env vars>
-#       <env_var_name>: <its_value>
-#   ``` 
-# 
-# this is the same procedure for adding a project in the monorepo
-#   (see query_processing as an example).
-# 
+#
+# each project in the monorepo owns its own compose.yaml and .env.
+# to add a new project, give it a compose.yaml (see query_processing as an example)
+# and add it to the include list below.
+#
 # then once updated simply `docker compose up`
-services:
-  query_processing:
-    build:
-      context: ./query_processing
-    depends_on:
-      postgres:
-        condition: service_healthy
-    working_dir: /app
-    command: python -m src.main
-    environment:
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_USER: rymmers
-      DB_PASSWORD: rymmers_password
-      DB_NAME: rymmers_db
-    volumes:
-      - ./query_processing/sql:/app/sql
-      - ./query_processing/dumps:/app/dumps
-      - ./query_processing/queries:/app/queries
-      - ./query_processing/results:/app/results
-      - ./query_processing/src:/app/src
-      - ./query_processing/pyproject.toml:/app/pyproject.toml
-
-  postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: rymmers
-      POSTGRES_PASSWORD: rymmers_password
-      POSTGRES_DB: rymmers_db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rymmers -d rymmers_db"]
-      interval: 3s
-      timeout: 3s
-      retries: 5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres_data:
+include:
+  - query_processing/compose.yaml
+  - dutch_railway/compose.yaml
