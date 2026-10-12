@@ -1,29 +1,25 @@
-"""Shared settings for the dutch_railway ETL.
-
-Kept free of Airflow imports so the notebooks can import the ETL code on the host.
-"""
+"""Configuration settings and path helpers for the Dutch Railway ETL pipeline."""
 
 import os
 from pathlib import Path
 
-# Mounted from ./data in compose.yaml. DUTCH_RAILWAY_DATA_DIR overrides it for running outside Docker.
 DATA_DIR = Path(os.environ.get("DUTCH_RAILWAY_DATA_DIR", "/opt/airflow/data"))
 RAW_DIR = DATA_DIR / "raw"
 STAGING_DIR = DATA_DIR / "staging"
+WAREHOUSE_DIR = DATA_DIR / "warehouse"
+
+DB_URL = os.environ.get(
+    "DUTCH_RAILWAY_DB_URL",
+    "postgresql://dutch_railway_user:dutch_railway_password@localhost:5433/dutch_railway_db",
+)
 
 SOURCE_URL_TEMPLATE = "https://blobs.duckdb.org/nl-railway/services-{year}.csv.gz"
 DEFAULT_YEAR = 2025
 
-# Source data is Dutch, so timestamps are interpreted in Europe/Amsterdam no matter where the
-# worker runs (see the EDA notebook: a host on UTC+8 renders the same instant differently).
 SOURCE_TIMEZONE = "Europe/Amsterdam"
-
-# DuckDB limits for the extract. The streaming CSV -> Parquet copy peaked at ~0.5 GB RSS for 2025.
 DUCKDB_MEMORY_LIMIT = os.environ.get("DUTCH_RAILWAY_DUCKDB_MEMORY_LIMIT", "2GB")
 DUCKDB_THREADS = int(os.environ.get("DUTCH_RAILWAY_DUCKDB_THREADS", "4"))
 
-# Exact header of the yearly files, in order, with the types we read them as.
-# The DuckDB docs list 17 columns. The 2025 file has 20 (it adds the three platform columns).
 SERVICES_COLUMNS: dict[str, str] = {
     "Service:RDT-ID": "BIGINT",
     "Service:Date": "DATE",
@@ -43,19 +39,58 @@ SERVICES_COLUMNS: dict[str, str] = {
     "Stop:Departure delay": "BIGINT",
     "Stop:Departure cancelled": "BOOLEAN",
     "Stop:Platform change": "BOOLEAN",
-    # Platforms look numeric ("1", "2") but include values like "4b" and "1/2", so they stay text.
     "Stop:Planned platform": "VARCHAR",
     "Stop:Actual platform": "VARCHAR",
 }
 
+STATION_CODE_MERGES: dict[str, str] = {"BERHBT": "BERHBL"}
+STATION_CODE_RENAMES: dict[tuple[str, str], str] = {("LAND", "Venezia Santa Lucia"): "VENEZ"}
+TIME_OF_DAY: dict[str, tuple[int, int]] = {"morning": (5, 12), "afternoon": (12, 18), "night": (18, 5)}
+
 
 def source_url(year: int) -> str:
+    """Format remote download URL for a given dataset year.
+
+    Args:
+        year: Calendar year of the NS services dataset.
+
+    Returns:
+        str: Fully-qualified HTTP download URL.
+    """
     return SOURCE_URL_TEMPLATE.format(year=year)
 
 
 def raw_path(year: int) -> Path:
+    """Return local filesystem path for the raw compressed services archive.
+
+    Args:
+        year: Calendar year of the NS services dataset.
+
+    Returns:
+        Path: Path to the destination `.csv.gz` file.
+    """
     return RAW_DIR / f"services-{year}.csv.gz"
 
 
 def staged_path(year: int) -> Path:
+    """Return local filesystem path for the staged typed Parquet file.
+
+    Args:
+        year: Calendar year of the NS services dataset.
+
+    Returns:
+        Path: Path to the destination staged `.parquet` file.
+    """
     return STAGING_DIR / f"services-{year}.parquet"
+
+
+def warehouse_dir(year: int) -> Path:
+    """Return directory path for transformed warehouse Parquet tables.
+
+    Args:
+        year: Calendar year of the NS services dataset.
+
+    Returns:
+        Path: Directory path containing the dimensional star schema tables.
+    """
+    return WAREHOUSE_DIR / str(year)

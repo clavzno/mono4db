@@ -1,14 +1,5 @@
-"""Airflow DAG: Dutch railway services (yearly file) -> dutch_railway_db.
-
-Only wiring lives here. The logic is in dags/etl/ so it can be imported without Airflow.
-Trigger from the UI (optionally set the `year` param); it is not scheduled because the
-yearly file is published once.
-
-
+"""
 This is the orchestration script.
-
-So, this wires the steps together. This means: Extract -> Transform -> Load,
-and the substeps inbetween them.
 """
 
 from dataclasses import asdict
@@ -22,7 +13,7 @@ from etl import config, extract, load, transform
 
 @dag(
     dag_id="dutch_railway_etl",
-    description="Extract the NS services yearly file, then transform and load (TODO)",
+    description="Extract the NS services yearly file, transform it into the star schema, load it into Postgres",
     schedule=None,
     start_date=datetime(2025, 1, 1),
     catchup=False,
@@ -64,17 +55,17 @@ def dutch_railway_etl():
     #   if needed bump this up into a @task_group
     # ]
     @task
-    def transform_step(extracted: dict) -> dict:
-        ...
+    def transform_step(extracted: dict, params=None) -> dict:
+        return transform.run_transform(Path(extracted["staged"]), config.warehouse_dir(params["year"]))
 
     # [ to: @zrygan, fr: @all
     #   Currently this is just a @task
     #   if needed bump this up into a @task_group
     # ]
     @task
-    def load_step(transformed: dict) -> dict:
-        ...
-        
+    def load_step(transformed: dict, params=None) -> dict:
+        return load.load_warehouse(Path(transformed["warehouse_dir"]), params["year"])
+
     load_step(transform_step(extract_group()))
 
 

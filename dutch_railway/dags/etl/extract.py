@@ -14,7 +14,7 @@ from etl import config
 
 log = logging.getLogger(__name__)
 
-_CHUNK = 1024 * 1024  # 1 MiB
+_CHUNK = 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -193,7 +193,6 @@ def _connect() -> duckdb.DuckDBPyConnection:
     con.execute(f"SET TimeZone = {_sql_str(config.SOURCE_TIMEZONE)}")
     con.execute(f"SET memory_limit = {_sql_str(config.DUCKDB_MEMORY_LIMIT)}")
     con.execute(f"SET threads = {config.DUCKDB_THREADS}")
-    # Row order is not meaningful here. Dropping it lets DuckDB stream with less buffering.
     con.execute("SET preserve_insertion_order = false")
     return con
 
