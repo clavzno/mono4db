@@ -1,0 +1,5 @@
+{
+  "executionEnvironments": [
+    { "root": "dutch_railway", "extraPaths": ["dutch_railway/dags", "dutch_railway/config"] }
+  ]
+}
