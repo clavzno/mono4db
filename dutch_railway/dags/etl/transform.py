@@ -30,12 +30,10 @@ import logging
 import os
 from pathlib import Path
 
-from etl import config
+import etl_config as config
 from etl.extract import _connect, _sql_str
 
 log = logging.getLogger(__name__)
-
-TABLES = ["dim_date", "dim_time", "dim_station", "fact_service", "fact_stop"]
 
 
 def _station_code_sql() -> str:
@@ -168,9 +166,9 @@ def _validate(con, out: Path) -> dict:
     Raises:
         ValueError: If any integrity constraint or foreign key check fails.
     """
-    for t in TABLES:
+    for t in config.TABLES:
         con.execute(f"CREATE OR REPLACE VIEW {t} AS FROM read_parquet({_sql_str(out / f'{t}.parquet')})")
-    counts = {t: con.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in TABLES}
+    counts = {t: con.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in config.TABLES}
 
     checks = {
         "fact_stop rows != staged rows": f"SELECT {counts['fact_stop']} <> (SELECT count(*) FROM stops)",
@@ -225,7 +223,7 @@ def run_transform(staged: Path, out: Path) -> dict:
             FROM read_parquet({_sql_str(staged)})
             """
         )
-        for table in TABLES:
+        for table in config.TABLES:
             dest = out / f"{table}.parquet"
             part = dest.with_name(dest.name + ".part")
             con.execute(f"COPY ({_QUERIES[table]}) TO {_sql_str(part)} (FORMAT parquet, COMPRESSION zstd)")

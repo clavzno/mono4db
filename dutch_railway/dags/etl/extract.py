@@ -10,7 +10,7 @@ from pathlib import Path
 
 import duckdb
 
-from etl import config
+import etl_config as config
 
 log = logging.getLogger(__name__)
 

@@ -9,6 +9,7 @@ try:
 except ImportError:
     sys.modules["duckdb"] = MagicMock()
 
+import etl_config as config
 from etl import transform
 
 
@@ -17,10 +18,10 @@ class TestTransform(unittest.TestCase):
 
     def test_tables_list(self):
         expected = ["dim_date", "dim_time", "dim_station", "fact_service", "fact_stop"]
-        self.assertEqual(transform.TABLES, expected)
+        self.assertEqual(config.TABLES, expected)
 
     def test_queries_keys(self):
-        for table in transform.TABLES:
+        for table in config.TABLES:
             self.assertIn(table, transform._QUERIES)
 
     def test_time_key_sql(self):

@@ -10,9 +10,8 @@ from pathlib import Path
 
 import psycopg2
 
-from etl import config
+import etl_config as config
 from etl.extract import _connect, _sql_str
-from etl.transform import TABLES
 
 log = logging.getLogger(__name__)
 
@@ -128,7 +127,7 @@ def load_warehouse(warehouse: Path, year: int, db_url: str = config.DB_URL) -> d
 
     with tempfile.TemporaryDirectory(dir=warehouse, prefix=".load-") as tmp:
         csvs = {}
-        for table in TABLES:
+        for table in config.TABLES:
             parquet = warehouse / f"{table}.parquet"
             csvs[table] = (Path(tmp) / f"{table}.csv", _columns(parquet))
             _to_csv(parquet, csvs[table][0])
@@ -178,7 +177,7 @@ def load_warehouse(warehouse: Path, year: int, db_url: str = config.DB_URL) -> d
                 log.info("Rebuilt %d indexes and %d foreign keys", len(indexes), len(fks))
 
                 counts = {}
-                for table in TABLES:
+                for table in config.TABLES:
                     cur.execute(f"SELECT count(*) FROM {table}")
                     counts[table] = cur.fetchone()[0]
             conn.autocommit = True

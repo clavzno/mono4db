@@ -3,10 +3,13 @@
 import os
 from pathlib import Path
 
-DATA_DIR = Path(os.environ.get("DUTCH_RAILWAY_DATA_DIR", "/opt/airflow/data"))
+CONTAINER_DATA_DIR = Path("/opt/airflow/data")  # where compose mounts dutch_railway/data
+DATA_DIR = Path(os.environ.get("DUTCH_RAILWAY_DATA_DIR", CONTAINER_DATA_DIR))
 RAW_DIR = DATA_DIR / "raw"
 STAGING_DIR = DATA_DIR / "staging"
 WAREHOUSE_DIR = DATA_DIR / "warehouse"
+DUMP_DIR = DATA_DIR / "dumps"
+DUMP_PATH = DUMP_DIR / "dutch_railway_db.dump"
 
 DB_URL = os.environ.get(
     "DUTCH_RAILWAY_DB_URL",
@@ -42,6 +45,8 @@ SERVICES_COLUMNS: dict[str, str] = {
     "Stop:Planned platform": "VARCHAR",
     "Stop:Actual platform": "VARCHAR",
 }
+
+TABLES = ["dim_date", "dim_time", "dim_station", "fact_service", "fact_stop"]
 
 STATION_CODE_MERGES: dict[str, str] = {"BERHBT": "BERHBL"}
 STATION_CODE_RENAMES: dict[tuple[str, str], str] = {("LAND", "Venezia Santa Lucia"): "VENEZ"}

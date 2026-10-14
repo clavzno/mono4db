@@ -2,7 +2,7 @@
 
 import unittest
 
-from etl import config
+import etl_config as config
 
 
 class TestConfig(unittest.TestCase):
