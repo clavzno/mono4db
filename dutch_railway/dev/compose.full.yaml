@@ -23,7 +23,6 @@ x-airflow-common:
     AIRFLOW__API_AUTH__JWT_ISSUER: ${AIRFLOW__API_AUTH__JWT_ISSUER:-airflow}
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
-    # used by the (future) load step
     DUTCH_RAILWAY_DB_URL: postgresql://${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}:${DUTCH_RAILWAY_DB_PASSWORD:-dutch_railway_password}@dutch_railway_db:5432/${DUTCH_RAILWAY_DB_NAME:-dutch_railway_db}
   volumes:
     - ./dags:/opt/airflow/dags
@@ -217,7 +216,6 @@ services:
     depends_on:
       <<: *airflow-common-depends-on
 
-  # `docker compose --profile flower up` to enable
   flower:
     <<: *airflow-common
     command: celery flower
@@ -236,6 +234,18 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+  qpo:
+    <<: *airflow-common
+    profiles:
+      - tools
+    entrypoint: ["python", "/opt/airflow/qpo/main.py"]
+    volumes:
+      - ./config:/opt/airflow/config
+      - ./qpo:/opt/airflow/qpo
+    depends_on:
+      dutch_railway_db:
+        condition: service_healthy
 
 volumes:
   airflow_db_data:

@@ -3,3 +3,4 @@ jupyter
 pandas
 pyarrow
 pytz
+psycopg2-binary

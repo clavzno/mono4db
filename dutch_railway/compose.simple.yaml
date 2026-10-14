@@ -1,27 +1,36 @@
+x-airflow-common:
+  &airflow-common
+  build: .
+  image: dutch_railway-airflow
+  user: "${AIRFLOW_UID:-50000}:0"
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    &airflow-common-env
+    DUTCH_RAILWAY_DB_URL: postgresql://${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}:${DUTCH_RAILWAY_DB_PASSWORD:-dutch_railway_password}@dutch_railway_db:5432/${DUTCH_RAILWAY_DB_NAME:-dutch_railway_db}
+
 services:
   airflow:
-    build: .                               
+    <<: *airflow-common
     command: standalone
-    user: "${AIRFLOW_UID:-50000}:0"        
-    env_file:
-      - path: .env
-        required: false
     environment:
+      <<: *airflow-common-env
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"   # local only: skip the login page
-      DUTCH_RAILWAY_DB_URL: postgresql://${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}:${DUTCH_RAILWAY_DB_PASSWORD:-dutch_railway_password}@dutch_railway_db:5432/${DUTCH_RAILWAY_DB_NAME:-dutch_railway_db}
     ports:
       - "8080:8080"
     volumes:
-      - ./dags:/opt/airflow/dags           
-      - ./data:/opt/airflow/data           
-      - ./logs:/opt/airflow/logs           
+      - ./dags:/opt/airflow/dags
+      - ./config/etl_config.py:/opt/airflow/config/etl_config.py   # imported by the DAG
+      - ./data:/opt/airflow/data
+      - ./logs:/opt/airflow/logs
     depends_on:
       dutch_railway_db:
         condition: service_healthy
 
-  dutch_railway_db:                        
+  dutch_railway_db:
     image: postgres:17
     environment:
       POSTGRES_USER: ${DUTCH_RAILWAY_DB_USER:-dutch_railway_user}
@@ -36,6 +45,18 @@ services:
       - "5433:5432"
     volumes:
       - dutch_railway_data:/var/lib/postgresql/data
+
+  qpo:
+    <<: *airflow-common
+    profiles:
+      - tools
+    entrypoint: ["python", "/opt/airflow/qpo/main.py"]
+    volumes:
+      - ./config/etl_config.py:/opt/airflow/config/etl_config.py
+      - ./qpo:/opt/airflow/qpo
+    depends_on:
+      dutch_railway_db:
+        condition: service_healthy
 
 volumes:
   dutch_railway_data:
