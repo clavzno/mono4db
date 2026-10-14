@@ -33,7 +33,7 @@ def in_airflow_image(script: str, *args: str, **kwargs) -> subprocess.CompletedP
     """
     kwargs.setdefault("stdin", subprocess.DEVNULL) 
     return compose(
-        "run", "--rm", "--no-deps", "-T", "--entrypoint", "bash", "airflow-worker",
+        "run", "--rm", "--no-deps", "-T", "--entrypoint", "bash", "airflow",
         "-c", script, "_", *args,
         **kwargs,
     )  

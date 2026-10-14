@@ -12,11 +12,20 @@ Run every command from this folder (`dutch_railway/`). It has its own
 
 ### Starting Things Up with Docker
 
+**Note.** The original Docker Compose yaml file came from @ena0553 but I (@zrygan) felt like that contained way more than what we actually need. The base Compose file (what we use) contains a smaller version of the original which is at [`dev/compose.full.yaml`](/dutch_railway/dev/compose.full.yaml).
+
+---
+
 Get the `.env` file from our Discord server (it is in `#environment-variables` channel) and save it as `dutch_railway/.env`, then:
 
 ```sh
 docker compose up -d
 ```
+
+This starts two containers:
+
+- `dutch_railway_db`: the Postgres warehouse, on `localhost:5433`.
+- `airflow`: all of Airflow (`airflow standalone`) in one container, at <http://localhost:8080>.
 
 ### Getting the Database
 
@@ -24,7 +33,7 @@ There are two ways to get the dutchrailway database.
 
 #### Via ETL Script
 
-In the Airflow UI, open **dutch_railway_etl**, unpause it with the toggle, then click
+In the Airflow UI, open **dutch_railway_etl**, unpause it with the toggle if it is paused, then click
 **Trigger** (the `year` parameter defaults to 2025).
 
 The DAG runs the ETL and the dump and its output goes to `data/`
