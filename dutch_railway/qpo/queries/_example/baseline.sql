@@ -1,5 +1,3 @@
--- Example: the 10 stations with the highest average arrival delay for Intercity services
--- in December 2025.
 SELECT
     s.station_name,
     ROUND(AVG(fs.arrival_delay), 2) AS avg_arrival_delay,
