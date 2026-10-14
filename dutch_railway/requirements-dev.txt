@@ -1,4 +1,3 @@
-# Local deps for the notebooks (not needed inside Airflow).
 -r requirements.txt
 jupyter
 pandas

@@ -1,12 +1,9 @@
-"""Set up dutch_railway_db from a dump made by the ETL's dump step (no ETL run needed).
+"""Set up dutch_railway_db from a dump made by the ETL's dump step.
 
-Restores the warehouse tables into the Postgres container, replacing any that
-already exist. Works on Linux, macOS and Windows; only needs Docker and Python.
-
-Usage (from anywhere in the repo):
-    python dutch_railway/scripts/setup_db.py                    # data/dumps/dutch_railway_db.dump
-    python dutch_railway/scripts/setup_db.py path/to/file.dump  # a dump you were sent
-    python dutch_railway/scripts/setup_db.py --yes              # skip the overwrite prompt
+Usage (from dutch_railway/):
+    python scripts/setup_db.py                    # data/dumps/dutch_railway_db.dump
+    python scripts/setup_db.py path/to/file.dump  # a dump you were sent
+    python scripts/setup_db.py --yes              # skip the overwrite prompt
 """
 
 import argparse
@@ -16,7 +13,7 @@ import sys
 from pathlib import Path, PurePosixPath
 
 PROJECT = Path(__file__).resolve().parents[1]
-COMPOSE_FILE = PROJECT.parent / "compose.yaml"  
+COMPOSE_FILE = PROJECT / "compose.yaml"  
 
 os.environ.setdefault("DUTCH_RAILWAY_DATA_DIR", str(PROJECT / "data"))
 sys.path.insert(0, str(PROJECT / "config"))
@@ -24,7 +21,7 @@ import etl_config as config
 
 
 def compose(*args: str, **kwargs) -> subprocess.CompletedProcess:
-    """Run `docker compose` against the monorepo's root compose file."""
+    """Run `docker compose` against dutch_railway's compose file."""
     return subprocess.run(["docker", "compose", "-f", str(COMPOSE_FILE), *args], **kwargs)
 
 
@@ -34,7 +31,7 @@ def in_airflow_image(script: str, *args: str, **kwargs) -> subprocess.CompletedP
     The image ships the same pg_dump/pg_restore version the dump was made with, and
     has DUTCH_RAILWAY_DB_URL set; `--no-deps` keeps the rest of Airflow stopped.
     """
-    kwargs.setdefault("stdin", subprocess.DEVNULL)  # else `compose run` swallows our own stdin
+    kwargs.setdefault("stdin", subprocess.DEVNULL) 
     return compose(
         "run", "--rm", "--no-deps", "-T", "--entrypoint", "bash", "airflow-worker",
         "-c", script, "_", *args,
@@ -95,7 +92,7 @@ def main() -> int:
 
     counts = " UNION ALL ".join(f"SELECT '{t}', count(*) FROM {t}" for t in config.TABLES)
     in_airflow_image(f'psql "$DUTCH_RAILWAY_DB_URL" -c "{counts}"', check=True)
-    print("Done. Connect at localhost:5433 (see dutch_railway/README.md).")
+    print("Done. Connect at localhost:5433 (see README.md).")
     return 0
 
 
