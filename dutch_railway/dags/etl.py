@@ -8,7 +8,8 @@ from pathlib import Path
 
 from airflow.sdk import Param, dag, task, task_group
 
-from etl import config, extract, load, transform
+import etl_config as config
+from etl import dump, extract, load, transform
 
 
 @dag(
@@ -66,7 +67,11 @@ def dutch_railway_etl():
     def load_step(transformed: dict, params=None) -> dict:
         return load.load_warehouse(Path(transformed["warehouse_dir"]), params["year"])
 
-    load_step(transform_step(extract_group()))
+    @task
+    def dump_step(loaded: dict) -> dict:
+        return dump.dump_database()
+
+    dump_step(load_step(transform_step(extract_group())))
 
 
 dutch_railway_etl()
