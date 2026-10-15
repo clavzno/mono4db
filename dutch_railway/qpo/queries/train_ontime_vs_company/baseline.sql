@@ -34,4 +34,4 @@ JOIN (
 ON company.company_name = train.company_name
 
 ORDER BY company_delay_gap ASC
-LIMIT 5; -- TO EDIT WITH SELECTED NUMBER OF TRAINS TO SEE
+LIMIT 5;
