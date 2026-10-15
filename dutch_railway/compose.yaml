@@ -48,8 +48,6 @@ services:
 
   qpo:
     <<: *airflow-common
-    profiles:
-      - tools
     entrypoint: ["python", "/opt/airflow/qpo/main.py"]
     volumes:
       - ./config/etl_config.py:/opt/airflow/config/etl_config.py
