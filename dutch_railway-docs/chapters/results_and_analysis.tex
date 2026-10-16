@@ -1,1 +1,20 @@
 \section{Results and Analysis}
+
+\begin{table}[h]
+    \centering
+    \caption{Results and Analysis}
+    \label{tab:results}
+    % Notice the 5th column is now p{2.5cm} instead of c or l
+    \begin{tabular}{|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|}
+        \hline
+        \textbf{Query} & \textbf{Baseline Exec. Time (ms)} & \textbf{Baseline Cost} & \textbf{Optimized Exec. Time (ms)} & \textbf{Optimized Cost} \\
+        \hline
+        Query 1 & 285545.856 & 231552640.66 & 3749.232 &  494768.04 \\
+        \hline
+        Query 2 & 55647.551 & 8938976.19 & 25428.777 & 4936684.24  \\
+        \hline
+        Query 3 & 3027.783 & 342056.93 & Row 2, Col 4 & Row 2, Col 5 \\
+        \hline
+        Query 4 & 14806.901 & 1006126.55 & Row 2, Col 4 & Row 2, Col 5 \\
+    \end{tabular}
+\end{table}
