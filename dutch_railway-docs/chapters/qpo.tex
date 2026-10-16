@@ -1,29 +1,28 @@
 \section{Query Processing and Optimization}
 
-What is query optimization? Why is it necessary?
-query optmization is necessary when stuff is very slow, which is especially needed for OLAP applications bc blah
-blah
+Query optimization is the process where a query's performance is improved. This is important as the larger a database grows, the more 
+time and compute resources are needed in order to execute queries. This can both worsen the user experience due to slow execution times, 
+while also incurring significantly higher computational cost. Three of the most relevant query processing techniques applied to this OLAP 
+application are correct database design, use of indexing, and query restructuring.
 
+First, database design is a key factor in creating fast queries. For example, since the focus of our queries lies in the efficiency of the 
+trains, the fact tables center on the services and stops. Additionally, compared to a snowflake schema design, the galaxy schema used allows for 
+significantly less JOINS being utilized, which speeds up the process significantly. While the most optimal dataset in terms of raw speed would 
+be one large table, this would be incredibly impractical and bloated. This is a large reason why queries 3 and 4 are already fairly fast without 
+further optimization as the database design already caters to their needs.
 
-What query optimization strategies are available?
-    Correct database design and normalization
-    star schema allows for signifcicantly faster queries, as a lot of the data is already aggregated into a few tables
-    which results in less joins and faster access to data
+Next, indexing is indexing is good for use on frequently accessed columns that aren't already primary or foreign keys
+however keep in mind write trade off for OLTP, and that indexes dont always help
+\textbf{will add to this tmr}
 
-    Use of indexes – primary and secondary indexes
-    indexing is good for use on frequently accessed columns that aren't already primary or foreign keys
-    keep in mind write trade off for OLTP, and that indexes dont always help
-
-    Query restructuring
-    Another effective method used to optimize queries is the use of commmon table expressions (CTEs), specifically
-    the MATERIALIZED view that stores the results of a subquery in physical memory, which prevents potential re-computation that
-    signifcicantly increases a query's runtiem. This is best demonstrated in the company monthly ranking query which goes from 
-    approx 280k ms execution time down to around 3-4000ms. Query 2 also utilizes this but to a lesser degree, cutting runtime in about
-    half as it only needds to compute for *cur* once rather than twice
-
-    Add baseline vs optimized query screenshots for 1 and 2
+Lastly, another very effective method for query optimization would be restructuring a query through the use of CTEs, specifically MATERIALIZED 
+views. Unlike CTEs that only store results temporarily for a query, the MATERIALIZED stores the results in physical memory. This optimization's 
+capabilities are best demonstrated in queries that utilize subqueries which would normally be computed for multiple times. The runtime of query 1 
+decreased from approximately 280,000 milliseconds to about 4,000 milliseconds, which is 70x faster.
 
 Provide illustrations – diagrams, SQL codes, schema – to illustrate the optimization strategy.
+\textbf{[Insert images of baseline vs optmized query 1 i guess]}
 
+\textbf{[i need to add sources, will do tomorrow]}
 
 Cite related literature to support your design decisions  
