@@ -1,1 +1,33 @@
-\section{Data Warehouse}
+\section{Data Warehouse}\label{sec:data_warehouse}
+
+Present your dimensional model. 
+
+insert image here
+
+What are the contents of your fact table?
+The dimensional model follows the galaxy schema design pattern, while following principles used in the snow
+schema design as well. THere are 2 fact tables, fact_service that denotes one schedule/ride instance, while fact_stop
+denotes when a train stops at a station. fact_service contains rdt_id as its primary key with date_key as its foreign key.
+The columns first_train_number, last_train_number, and train_ID_changed indicate when a service switches trains halfway
+through, company_name denotes the company handling that particular service, and cancel_status is as ENUM that denotes
+services as partially cancelled, completely cancelled, or no cancellation.
+
+The fact_stop table contains stop_ID as its PK, with RDT_ID and station_code as foreign keys. Additional columns include
+the stop's arrival and departure times, train_ID to indicate the train that arrived, a next_day flag that denotes when
+a stop arrives the day after it departed, arrival and departure delay computations, and a cancel_status ENUM.
+
+What are your dimensions? Describe the hierarchy per dimension.
+DIM time
+DIM station
+DIM date 
+
+Justify your choice of dimensions and facts.
+basta
+
+What issues did you encounter in your model / schema design? How did you address these?
+weeks spanning 2 months, 
+
+Use figures and tables accordingly.
+
+
+Cite related literature to support your design decisions.
