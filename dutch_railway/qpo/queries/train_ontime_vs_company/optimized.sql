@@ -1,37 +1,35 @@
-SELECT
-	company.company_name,
-	train.train_ID,
-	company.avg_delay AS avg_company_delay,
-	train.on_time_rate AS train_on_time_rate,
-	train.avg_delay AS avg_train_delay,
-	ROUND(company.avg_delay - train.avg_delay, 2) AS company_delay_gap
+CREATE INDEX ON fact_service (company_name);
 
-FROM (
+WITH train AS (
 	SELECT
 		fsv.company_name,
-		fst.train_ID,
-		ROUND(100.0 * SUM(CASE WHEN fst.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS on_time_rate,
-		ROUND(AVG(fst.arrival_delay), 2) AS avg_delay
-	FROM fact_stop AS fst 
+		fst.train_id,
+		COUNT(*) AS total_stops,
+		SUM(fst.arrival_delay) AS total_delay,
+		COUNT(*) FILTER (WHERE fst.arrival_delay = 0) AS on_time
+	FROM fact_stop AS fst
 	JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
 	WHERE fst.cancel_status IN ('none', 'departure-only')
 	AND fst.arrival_delay IS NOT NULL
-	AND company_name = 'Arriva' -- TO EDIT WITH SELECTED COMPANY TO CHECK DATA OF
-	GROUP BY fsv.company_name, fst.train_ID
-) AS train
-
-JOIN (
+	AND fsv.company_name = 'Arriva' -- TO EDIT WITH SELECTED COMPANY
+	GROUP BY fsv.company_name, fst.train_id
+),
+calc AS (
 	SELECT
-		fsv.company_name,
-		ROUND(AVG(fst.arrival_delay), 2) AS avg_delay
-	FROM fact_service AS fsv
-	JOIN fact_stop AS fst ON fst.rdt_id = fsv.rdt_id
-	WHERE fst.cancel_status IN ('none', 'departure-only')
-	AND fst.arrival_delay IS NOT NULL
-	AND company_name = 'Arriva' -- TO EDIT WITH SELECTED COMPANY TO CHECK DATA OF
-	GROUP BY fsv.company_name
-) AS company
-ON company.company_name = train.company_name
-
+		company_name,
+		train_id,
+		ROUND(SUM(total_delay) OVER (PARTITION BY company_name)::numeric / SUM(total_stops) OVER (PARTITION BY company_name), 2) AS avg_company_delay,
+		ROUND(100.0 * on_time / total_stops, 2) AS train_on_time_rate,
+		ROUND(total_delay::numeric / total_stops, 2) AS avg_train_delay
+	FROM train
+)
+SELECT
+	company_name,
+	train_id,
+	avg_company_delay,
+	train_on_time_rate,
+	avg_train_delay,
+	ROUND(avg_company_delay - avg_train_delay, 2) AS company_delay_gap
+FROM calc
 ORDER BY company_delay_gap ASC
-LIMIT 5;
+LIMIT 5 -- EDIT HERE WITH NUM OF TRAINS TO SHOW;
