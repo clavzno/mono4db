@@ -12,4 +12,4 @@ AND fst.departure_delay IS NOT NULL
 AND t.time_of_day = 'morning' -- EDIT HERE TO MORNING/NOON/NIGHT BASED ON INPUT
 GROUP BY s.station_name, t.time_of_day
 ORDER BY avg_delay_change DESC -- EDIT HERE FROM ASC TO DESC. DESC = RECOVERY, ASC = DELAYERS
-LIMIT 10 -- EDIT HERE TO TOP 10, TOP 20, ETC ;
+LIMIT 5;
