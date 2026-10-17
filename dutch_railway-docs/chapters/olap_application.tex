@@ -25,7 +25,54 @@ In the application, there is a bar graph showcasing the difference in on-time ra
 
 The corresponding SQL query used in this report is as follows:
 
-\textbf[SQL Query here]
+\begin{lstlisting}
+WITH cur AS MATERIALIZED(
+    SELECT
+        fsv.company_name,
+        wm.min_quarter AS quarter,
+        wm.min_month AS month,
+        d.week,
+        COUNT(*) AS total_stops,
+        ROUND(100.0 * SUM(CASE WHEN fst.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS on_time_rate
+
+    FROM fact_stop AS fst
+    JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
+    JOIN dim_date AS d ON d.date_key = fsv.date_key
+    JOIN (
+        SELECT week, MIN(quarter) AS min_quarter, MIN(month) AS min_month
+        FROM dim_date
+        GROUP BY week
+    ) AS wm ON wm.week = d.week
+
+    WHERE fst.cancel_status IN ('none', 'departure-only')
+    AND fst.arrival_delay IS NOT NULL
+    GROUP BY fsv.company_name,
+    ROLLUP (wm.min_quarter, wm.min_month, d.week)
+)
+
+SELECT
+    cur.company_name,
+    cur.quarter,
+    cur.month,
+    cur.week,
+    cur.total_stops,
+    cur.on_time_rate,
+    ROUND(cur.on_time_rate - prev.on_time_rate, 2) AS rate_change
+    
+FROM cur
+LEFT JOIN cur AS prev
+ON prev.company_name = cur.company_name
+AND (
+        (cur.month IS NULL AND cur.quarter IS NOT NULL
+        AND prev.month IS NULL AND prev.quarter = cur.quarter - 1)
+    OR
+        (cur.week IS NULL AND cur.month IS NOT NULL
+        AND prev.week IS NULL AND prev.month = cur.month - 1)
+    OR
+        (cur.week IS NOT NULL AND prev.week = cur.week - 1)
+    )
+ORDER BY cur.company_name, cur.quarter, cur.month, cur.week;
+\end{lstlisting}
 
 The OLAP operation used in this query is drill-down and rollup. Rollup is the process of starting at the smallest grain, then aggregating onto an increasingly larger grain. In this query, the smallest grain is the data per-week. After the per-week data, it gets aggregated to per-month, then per-quarter. Drill-down is a very similar process, but starts from the larger grain down to the smaller grain. In the query, the ROLLUP construct was used, formatting the resulting table in a manner that shows information in the three different grains. Below is a sample of the resulting table from this query:
 
@@ -46,7 +93,43 @@ In the application, the user is able to pick which time-of-day to filter the dat
 
 The corresponding SQL query used in this report is as follows:
 
-\textbf[SQL Query here]
+\begin{lstlisting}
+WITH cur AS MATERIALIZED(
+    SELECT
+        fsv.company_name,
+        d.month,
+        ROUND(100.0 * SUM(CASE WHEN fst.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS on_time_rate,
+        ROUND(AVG(fst.arrival_delay), 2) AS avg_arrival_delay
+
+    FROM fact_stop AS fst
+    JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
+    JOIN dim_date AS d ON d.date_key = fsv.date_key
+    JOIN dim_time AS t ON t.time_key = fst.arrival_time
+
+    WHERE fst.cancel_status IN ('none', 'departure-only')
+    AND fst.arrival_delay IS NOT NULL
+    AND t.time_of_day = 'morning' -- THIS WHERE CLAUSE CAN CHANGE DEPENDING ON SELECTED TIME
+
+    GROUP BY fsv.company_name, d.month
+)
+
+SELECT
+    cur.company_name,
+    cur.month,
+    cur.on_time_rate,
+    cur.avg_arrival_delay,
+    1 + (
+        SELECT COUNT(*)
+
+        FROM cur AS better
+        WHERE better.month = cur.month AND better.on_time_rate > cur.on_time_rate
+            
+    ) AS rank
+
+FROM cur
+
+ORDER BY cur.month, rank;
+\end{lstlisting}
 
 As the performance of the railway system differs at the different times of day, restricting it to show only services from the morning, afternoon, or night allows a more specific analysis of how companies operate at different times. The explicit rankings make it easier as well to identify which companies perform best at different times, and whether the best-performing company changes depending on the time.
 
@@ -70,7 +153,43 @@ In the application, the user can pick a company and a number $n$. The average co
 
 The corresponding SQL query used in this report is as follows:
 
-\textbf[SQL Query here]
+\begin{lstlisting}
+CREATE INDEX ON fact_service (company_name);
+
+WITH train AS (
+    SELECT
+        fsv.company_name,
+        fst.train_id,
+        COUNT(*) AS total_stops,
+        SUM(fst.arrival_delay) AS total_delay,
+        COUNT(*) FILTER (WHERE fst.arrival_delay = 0) AS on_time
+    FROM fact_stop AS fst
+    JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
+    WHERE fst.cancel_status IN ('none', 'departure-only')
+    AND fst.arrival_delay IS NOT NULL
+    AND fsv.company_name = 'Arriva' -- TO EDIT WITH SELECTED COMPANY
+    GROUP BY fsv.company_name, fst.train_id
+),
+calc AS (
+    SELECT
+        company_name,
+        train_id,
+        ROUND(SUM(total_delay) OVER (PARTITION BY company_name)::numeric / SUM(total_stops) OVER (PARTITION BY company_name), 2) AS avg_company_delay,
+        ROUND(100.0 * on_time / total_stops, 2) AS train_on_time_rate,
+        ROUND(total_delay::numeric / total_stops, 2) AS avg_train_delay
+    FROM train
+)
+SELECT
+    company_name,
+    train_id,
+    avg_company_delay,
+    train_on_time_rate,
+    avg_train_delay,
+    ROUND(avg_company_delay - avg_train_delay, 2) AS company_delay_gap
+FROM calc
+ORDER BY company_delay_gap ASC
+LIMIT 5 -- EDIT HERE WITH NUM OF TRAINS TO SHOW;
+\end{lstlisting}
 
 In this query, the company name, train ID, average company delay, average train delay, train on-time delay, and the gap of the train from the company's average delay. Unlike the first two reports, this report focuses on analyzing the performance of trains, which helps identify problematic trains.
 
@@ -94,7 +213,22 @@ In the application, the user can pick a time-of-day, morning, afternoon, or nigh
 
 The corresponding SQL query used in this report is as follows:
 
-\textbf[SQL Query here]
+\begin{lstlisting}
+SELECT
+    s.station_name,
+    t.time_of_day,
+    ROUND(AVG(fst.departure_delay - fst.arrival_delay), 2) AS avg_delay_change,
+    COUNT(*) AS total_stops
+FROM fact_stop AS fst
+JOIN dim_station AS s ON s.station_code = fst.station_code
+JOIN dim_time    AS t ON t.time_key     = fst.arrival_time
+WHERE fst.cancel_status = 'none'
+  AND fst.arrival_delay   IS NOT NULL
+  AND fst.departure_delay IS NOT NULL
+  AND t.time_of_day = 'morning'
+GROUP BY s.station_name, t.time_of_day
+ORDER BY avg_delay_change DESC;
+\end{lstlisting}
 
 In this query, the station name, time of day, the average of the difference of the departure delay and arrival delay, and the total stops of the station are recorded. Unlike the other reports, this report focuses on analyzing the nature of the different stations, and identifying stations that are problematic in terms of causing delays, and stations which do well at recovering from the delays created by earlier stops.
 
@@ -103,6 +237,40 @@ The OLAP operation used in this query is once again, a slice operation on the ti
 \textbf[Sample Table]
 
 This report shows which stations are bottlenecks and which help recover from delay, dependent on the time of day.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
