@@ -1,1 +1,85 @@
 \section{Introduction}
+\label{sec:introduction}
+
+The Dutch railway network is very highly utilized compared to those of other countries. NS and several other operators run their trains on the same infrastructure, and the time buffers between trains are what keep a delay on one train from spreading to the next \cite{kroon2008dutch}. Measuring punctuality, cancellations, and station congestion for a whole year therefore means working with tens of millions of stop events. Records at this volume are hard to analyze in their raw form and need a structure built for aggregation.
+
+This paper describes how we turned one year of raw Dutch railway records into a dimensional data warehouse in PostgreSQL and built an OLAP application on top of it. This section defines the railway terms used in the paper, describes the dataset, summarizes the exploratory data analysis (EDA) that shaped the design, and states who the warehouse is for.
+
+The code is available at \url{https://github.com/zrygan/mono4db}, with the warehouse and ETL pipeline in \texttt{dutch\_railway/} and the OLAP application in \texttt{dutch\_railway-app/}.
+
+\subsection{Definition of Terms}
+\label{subsec:definitions}
+
+\begin{itemize}
+    \item \textbf{Service.} One scheduled train trip from its origin to its terminus, identified in the dataset by \texttt{Service:RDT-ID}.
+    \item \textbf{Stop.} One call of a service at one station, identified by \texttt{Stop:RDT-ID}. A stop has an arrival, a departure, or both. A service is made up of one or more stops, and this two-level structure gives the warehouse its two fact tables.
+    \item \textbf{RDT.} Short for \emph{Rijden de Treinen} (``Are the trains running''), the Dutch service that collects the real-time departure data published by the national operator NS and keeps the archive this dataset comes from \cite{rijdendetreinen, szarnyas2024railway}. The prefix in the identifier names refers to this source.
+    \item \textbf{Delay.} The difference in whole minutes between the scheduled and the actual time of an arrival or a departure. Trains that run early are recorded with a delay of 0. The dataset records only the delay that was observed and does not give its cause.
+    \item \textbf{Punctuality.} The share of trains that arrive within a fixed delay threshold. The Dutch definition counts trains that arrive at one of the 35 main stations with a delay of less than three minutes \cite{kroon2008dutch}.
+    \item \textbf{Cancellation.} A service is \emph{completely cancelled} when none of its stops were served and \emph{partly cancelled} when only some were. At the stop level, the arrival, the departure, or both can be cancelled.
+    \item \textbf{Train number change.} A service whose train number changes partway through the trip, for example when a train continues past a hub under a new number.
+    \item \textbf{Replacement service.} A bus, metro, or taxi that runs in place of a train, usually during engineering works. In the dataset these have service types ending in \emph{ipv trein} (``instead of train'').
+\end{itemize}
+
+\subsection{Dataset Description}
+\label{subsec:dataset}
+
+The dataset covers every service on the Dutch network in the 2025 calendar year. It contains $22{,}226{,}311$ rows. Each row is one stop of one service. The rows cover $2{,}402{,}665$ services over 365 days and 578 station codes, a count that includes stations outside the Netherlands served by international trains.
+
+Each row has 20 columns that fall into two groups. The \texttt{Service:*} columns describe the whole trip and repeat on every stop of it. These are the service identifier, date, type (e.g., ``Intercity'' or ``Sprinter''), operating company, train number, the two cancellation flags, and the maximum delay of the trip. The \texttt{Stop:*} columns describe one stop. These are the stop identifier, the station code and name, the arrival and departure times with their delays and cancellation flags, the planned and actual platform, and a platform change flag.
+
+\subsection{Exploratory Data Analysis}
+\label{subsec:eda}
+
+To help inform the data warehousing stage, we first profiled the entire database via EDA.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Null values by column group}
+\Description{Distribution of missing values across raw attribute groups, showing counts, percentages, and root causes.}
+\label{tab:eda_columns}
+\begin{tabularx}{\columnwidth}{l r r X}
+\toprule
+\textbf{Column group} & \textbf{Null rows} & \textbf{Null \%} & \textbf{Cause} \\
+\midrule
+Other 12 columns & 0 & 0.0\% & None \\
+Arrival (3 columns) & $2{,}403{,}837$ & 10.8\% & Trip origin \\
+Departure (3 columns) & $2{,}404{,}493$ & 10.8\% & Trip terminus \\
+Platform (2 columns) & $3{,}008{,}309$ & 13.5\% & Mixed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Null values}
+Only 8 of the 20 columns contain nulls, and they fall into three groups (Table~\ref{tab:eda_columns}). Within each group the columns are always null together. The arrival group holds the arrival time, delay, and cancellation flag. When the stops of each service are ordered by time, 99.9\% of the null arrivals fall on the first stop, which is the origin of the trip and has no arrival. In the same way, 99.9\% of the null departures fall on the last stop. These nulls are therefore part of the structure of a trip and not missing data.
+
+Replacement buses and metros never have a platform because they do not stop at a track, and cancelled stops never have one because no track was assigned. However, foreign operators such as DB and NMBS, leave the platform empty for 60\% to 93\% of their served stops, while Dutch operators leave it empty for less than 3\%. 
+
+\subsubsection{Delays of cancelled stops}
+Every cancelled arrival and every cancelled departure has a delay of 0 minutes, which affects about 1.1 million rows. Averaging these values would make cancelled trains count as on time. But replacement buses and metros never report a delay above 0 for the whole year, this likely means that no real-time tracking was available.
+
+\subsubsection{Cancellation flags}
+The two service-level flags overlap instead of excluding each other. Of the $52{,}098$ services flagged as completely cancelled, $50{,}262$ are also flagged as partly cancelled. The remaining $1{,}836$ have no cancelled stops at all, even though the whole service is marked as cancelled. The stop-level flags are therefore a more reliable record of which stops were actually served.
+
+\subsubsection{Codes that change during the year}
+The yearly timetable change on 14 December 2025 changed several identifiers. Operator names were cut to 10 characters (for example \texttt{DB} became \texttt{Deutsche B}), and between 14 and 18 December some services carried numeric operator codes instead of names. Berlin Hauptbahnhof appears as \texttt{BERHBL} for the whole year and also as \texttt{BERHBT} from 14 December onward. The code \texttt{LAND} is the only code with two station name, it was used for Landeck-Zams in early February and for Venezia Santa Lucia from mid February.
+
+\subsubsection{Stops after midnight}
+Each service has one \texttt{Service:Date}, but services that run late in the evening have stops on the following day. In 2025, $745{,}493$ arrivals fall on a later calendar date than their service, and $11{,}503$ stops arrive before midnight and depart after it. Taking the date of a stop from its service would place these stops before the start of the trip.
+
+\subsubsection{Train numbers}
+A service can change its train number along the route. This happens in $12{,}568$ services, never more than once per service. The same train number can also belong to several operators and service types during the year. This simply means that train numbers cannot be used as keys.
+
+\subsection{Intended Use and Users}
+\label{subsec:usage_users}
+
+The warehouse is designed for three kinds of analysis. The first is comparing operators on punctuality and cancellations. The second is comparing delays across the three time-of-day periods and across months. The third is following a delay from stop to stop within a service to find stations where trains tend to lose time and stations where they make it up.
+
+These analyses serve four groups of users.
+\begin{enumerate}
+    \item \textbf{Infrastructure planners}, who need to know which stations and periods have the most delay when they plan timetables.
+    \item \textbf{Train operating companies}, who need to track the punctuality and cancellations of their own services.
+    \item \textbf{Transport authorities}, who need to check whether operators meet the punctuality terms of their concessions.
+    \item \textbf{Data engineers}, who can use the warehouse as a test case for loading and querying a large analytical dataset.
+\end{enumerate}
