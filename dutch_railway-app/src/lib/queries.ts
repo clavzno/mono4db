@@ -185,5 +185,5 @@ AND fst.arrival_delay   IS NOT NULL
 AND fst.departure_delay IS NOT NULL
 AND t.time_of_day = $1
 GROUP BY s.station_name, t.time_of_day
-ORDER BY avg_delay_change DESC;
+ORDER BY avg_delay_change DESC, s.station_name ASC;
 `;

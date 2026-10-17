@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { OnTimeResults } from "./on-time-results";
+import { StationReport } from "./station-report";
 import { TrainResults } from "./train-results";
 import { useTrainReport } from "./use-train-report";
 import { defaultsForReport, validTrainCount, filterDefinitions, isConfiguration, reports, type Filters, type ReportId } from "./reports";
@@ -27,7 +28,7 @@ function ReportFilters({ report, filters, onChange, companies, companiesReady }:
 }
 
 function ReportActions({ onReset, onCopy, onPaste, runDisabled = false, busy = false }: { onReset: () => void; onCopy: () => void; onPaste: () => void; runDisabled?: boolean; busy?: boolean }) {
-  return <div className="report-actions"><div className="action-group"><button type="submit" className="button primary" disabled={runDisabled} aria-busy={busy}><span aria-hidden="true">▷</span> {busy ? "Running query…" : "Run Query"}</button><button type="button" className="button" onClick={onReset}>Reset Filters</button><span className="action-divider" /><button type="button" className="button" disabled title="Temporarily unavailable" onClick={onCopy}>Copy Config</button><button type="button" className="button" disabled title="Temporarily unavailable" onClick={onPaste}>Paste Config</button></div><div className="action-group"><button type="button" className="button" disabled title="Available when report results are connected">Download Report</button><button type="button" className="button" disabled title="Available when report results are connected">Export CSV</button></div></div>;
+  return <div className="report-actions"><div className="action-group"><button type="submit" className="button primary" disabled={runDisabled} aria-busy={busy}>{busy ? "Running query…" : "Run Query"}</button><button type="button" className="button" onClick={onReset}>Reset Filters</button><span className="action-divider" /><button type="button" className="button" disabled title="Temporarily unavailable" onClick={onCopy}>Copy Config</button><button type="button" className="button" disabled title="Temporarily unavailable" onClick={onPaste}>Paste Config</button></div><div className="action-group"><button type="button" className="button" disabled title="Available when report results are connected">Download Report</button><button type="button" className="button" disabled title="Available when report results are connected">Export CSV</button></div></div>;
 }
 
 export function RailwayDashboard({ onTimeReport = false, initialReport = "on-time" }: { onTimeReport?: boolean; initialReport?: ReportId }) {
@@ -74,6 +75,7 @@ export function RailwayDashboard({ onTimeReport = false, initialReport = "on-tim
     <header className="site-header"><div className="header-inner"><Link href="/" className="brand"><span className="brand-mark"><RailMark /></span><span>Dutch Railway</span></Link><span className="dataset-badge">2025 dataset</span></div></header>
     <main className="dashboard-main"><div className="page-heading"><div><h1>Railway performance</h1><p>Explore the journeys behind the numbers.</p></div></div>
       <ReportNavigation selected={selected} onSelect={(id) => { setSelected(id); setNotice(null); }} />
+      <div hidden={selected === "stations"}>
       <section aria-labelledby="report-title" className="report-panel"><div className="panel-heading"><div><h2 id="report-title">{report.title}</h2><p>{report.description}</p></div><span className="filter-indicator">Filters</span></div>
         <form onSubmit={(event) => {
           event.preventDefault();
@@ -107,6 +109,8 @@ export function RailwayDashboard({ onTimeReport = false, initialReport = "on-tim
         {trainReport.error ? <div className="notice notice-error" role="alert"><span>{trainReport.error} {trainReport.result ? "The last successful results remain below." : ""}</span></div> : null}
         {trainReport.result ? <TrainResults key={trainReport.version} result={trainReport.result} /> : <section className="results-panel"><div className="empty-state"><h3>Choose your company, then run the query</h3><p>Compare its lowest-ranked trains with the overall company on-time baseline.</p></div></section>}
       </section> : onTimeReport && selected === "on-time" ? <OnTimeResults key={queryVersion} filters={submittedFilters} /> : <section aria-label={`${report.title} results`} className="results-panel"><div className="results-toolbar"><h2>Report results</h2><span>Waiting for query</span></div><div className="empty-state"><div className="empty-graphic" aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /></div><h3>Your next insight starts here</h3><p>Set your filters above, then run a query<br className="hidden sm:block" /> to explore {report.title.toLowerCase()}.</p>{selected === "on-time" ? <Link className="empty-hint" href="/report-1">Open On-time Trends</Link> : <span className="empty-hint">Start with the filters above</span>}</div></section>}
+      </div>
+      <div hidden={selected !== "stations"}><StationReport /></div>
     </main>
   </div>;
 }
