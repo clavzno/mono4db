@@ -1,3 +1,4 @@
 .vscode/
 jack/
 .venv
+*.pdf
