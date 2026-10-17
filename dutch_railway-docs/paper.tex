@@ -68,7 +68,7 @@
   \institution{De La Salle University}
   \city{Manila}
   \country{Philippines}}
-\email{Zhean\_robby\_ganituen@dlsu.edu.ph}
+\email{zhean\_robby\_ganituen@dlsu.edu.ph}
 
 
 %%
@@ -118,9 +118,11 @@ This set of guidelines for formatting your research paper has been adapted from 
 During the conduct of this hands-on activity, we used Claude Opus 5.5 to assist with the following tasks:
 \begin{itemize}
   \item Help understand documentation of Docker and Apache Airflow. 
-  \textbf{Sample prompt} \emph{Do not give me specific code, simply guide me like a teacher. Can you help
+  \textbf{Sample prompt}: \emph{Do not give me specific code, simply guide me like a teacher. Can you help
   me understand [what Apache Airflow is for]/[how to integrate it into Docker]. I have experience with data
   modelling so try to use analogies in that field.}
+  \item \LaTeX~formatting and ACM template formatting.
+  \textbf{Sample prompt}: \emph{Refer to the ACM template we have in this project. Can you help me format the tables in the entire report.}
 \end{itemize}
 
 Statement of Accountability. By submitting this report, we explicitly affirm the following:
@@ -145,27 +147,54 @@ Statement of Accountability. By submitting this report, we explicitly affirm the
 %   % Zen's
 %   \\
 % ]
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\footnotesize
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\columnwidth}{|>{\raggedright\arraybackslash}X|*{4}{>{\centering\arraybackslash}X|}}
-\hline
-\textbf{Task} & \textbf{Clavano} & \textbf{Aragon} & \textbf{Luna} & \textbf{Ganituen} \\
-\hline
-Task 1 & 
-% Jack's 
-& 
-% Ena's
-& 
-% Koby's
-& 
-% Zen's
-\\
-\hline
-\end{tabularx}
-\caption{Member contributions}
+\scriptsize
+\caption{Record of member contributions}
 \label{tab:contributions}
+\Description{Record of individual group member contributions across project tasks.}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}p{2.0cm} *{4}{>{\centering\arraybackslash}X}}
+\toprule
+\textbf{Task} & \textbf{Clavano} & \textbf{Aragon} & \textbf{Luna} & \textbf{Ganituen} \\
+\midrule
+\textbf{Data Warehouse} & 
+Jack & 
+Ena & 
+Koby & 
+Exploratory data analysis \\
+\addlinespace[4pt]
+\textbf{ETL Pipeline} & 
+Jack & 
+Ena & 
+Koby & 
+Pipeline implementation \\
+\addlinespace[4pt]
+\textbf{OLAP Application} & 
+Jack & 
+Ena & 
+Koby & 
+--- \\
+\addlinespace[4pt]
+\textbf{Functional Testing} & 
+Jack & 
+Ena & 
+Koby & 
+Test implementation \\
+\addlinespace[4pt]
+\textbf{Performance Testing} & 
+Jack & 
+Ena & 
+Koby & 
+Test implementation \\
+\addlinespace[4pt]
+\textbf{Report} & 
+Jack & 
+Ena &
+Koby & 
+Wrote \ref{sec:introduction} and \ref{sec:etl_script} \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
 
