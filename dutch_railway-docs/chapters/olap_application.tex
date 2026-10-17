@@ -1,2 +1,110 @@
 \section{OLAP Application}
 \label{sec:olap_application}
+
+To make an OLAP application that provides use to society, we focused our application on the reliability of the different entities involved in the Dutch railway system. After a look at the database, the best metric provided to measure reliability is the delay of the train to its stop on arrival and on departure.
+
+
+
+
+
+\subsection{Dice Observed in All Reports}
+\label{subsec:all_dice}
+Before generating the report, the user is able to filter out and exclude certain companies, and can further restrict the data to the past 12 months (the full dataset) or the past 6 months. These filters select a subset of members along the dimensions for company and date, and applying them together restricts the two dimensions at once. This is a dice operation, and applies to every report below.
+
+
+
+
+
+\subsection{Report 1: On-Time Trends}
+\label{subsubsec:on-time_trends}
+The first report shows the on-time rate of all selected companies per quarter, month, and week.
+
+In the application, there is a bar graph showcasing the difference in on-time rate. Upon initial load, the bar graph shows the data in relation to each quarter of the year. Once the user clicks on it, it shows the data in relation to each month of the year, and then the user can select a month to view the data in relation to the 4 weeks of that month.
+
+\textbf[Picture of the website]
+
+The corresponding SQL query used in this report is as follows:
+
+\textbf[SQL Query here]
+
+The OLAP operation used in this query is drill-down and rollup. Rollup is the process of starting at the smallest grain, then aggregating onto an increasingly larger grain. In this query, the smallest grain is the data per-week. After the per-week data, it gets aggregated to per-month, then per-quarter. Drill-down is a very similar process, but starts from the larger grain down to the smaller grain. In the query, the ROLLUP construct was used, formatting the resulting table in a manner that shows information in the three different grains. Below is a sample of the resulting table from this query:
+
+\textbf[Sample Table]
+
+This report lets users see whether reliability is improving or worsening over time.
+
+
+
+
+\subsection{Report 2: Company Monthly Rank by On-Time Rate}
+\label{subsubsec:company_monthly_rank_otr}
+The second report details the on-time rate of each selected companies, including each company's rank based on their on-time rate, per month, on a chosen time of day.
+
+In the application, the user is able to pick which time-of-day to filter the data on. There is a line graph, showing the months on the x-axis and the included companies on the y-axis. A line represents a company, and hovering over it highlights that company.
+
+\textbf[Picture of the website]
+
+The corresponding SQL query used in this report is as follows:
+
+\textbf[SQL Query here]
+
+As the performance of the railway system differs at the different times of day, restricting it to show only services from the morning, afternoon, or night allows a more specific analysis of how companies operate at different times. The explicit rankings make it easier as well to identify which companies perform best at different times, and whether the best-performing company changes depending on the time.
+
+The OLAP operation used is slice. The time-of-day dimension is fixed on a single value dependent on user input, and removes all data corresponding to times that are not within the selected time by the user. Below is a sample of the resulting table from this query:
+
+\textbf[Sample Table]
+
+This report shows which companies are most reliable at different times of the day.
+
+
+
+
+
+\subsection{Report 3: Underperforming Trains in Companies}
+\label{subsubsec:underperforming_trains}
+The third report focuses on the performance of trains under a specific company. The average arrival delay of a company throughout all of its stops is recorded. The average arrival delay per-train, and the difference of the company average and train average is calculated to see which trains perform worst in each company, relative to the company average.
+
+In the application, the user can pick a company and a number $n$. The average company arrival delay is displayed, alongside a bar graph of the $n$ worst performing trains.
+
+\textbf[Picture of the website]
+
+The corresponding SQL query used in this report is as follows:
+
+\textbf[SQL Query here]
+
+In this query, the company name, train ID, average company delay, average train delay, train on-time delay, and the gap of the train from the company's average delay. Unlike the first two reports, this report focuses on analyzing the performance of trains, which helps identify problematic trains.
+
+The operation used in this query is once again, a slice operation. In this report, rather than altering the time dimension, the slice is performed on the company dimension. All data not operated by the chosen company is removed. Below is a sample of the resulting table from this query:
+
+\textbf[Sample Table]
+
+This report helps a company decide which trains are problematic and may need inspection.
+
+
+
+
+
+\subsection{Report 4: Station Delay Recovery and Addition}
+\label{subsubsec:station_delay_recovery}
+The last report focuses on whether a station is able to recover from delays, or make delays worse. In the data warehouse, arrival delay and departure delay are both metrics included per-stop, alongside the station that these trains arrive and depart at. Arrival delay is not something a station can control, but departure delay is. If a train arrived severely delayed but departed with a low amount of delay, it is considered a good station at recovering from delay. Vice versa, a station that adds delay is considered a bottleneck. This report additionally separates the data by the time-of-day, as it is a strong factor in delay.
+
+In the application, the user can pick a time-of-day, morning, afternoon, or night, the number $n$ of stations to show, then whether to show the $n$ delay recoverers or delay adders.
+
+\textbf[Picture of the website]
+
+The corresponding SQL query used in this report is as follows:
+
+\textbf[SQL Query here]
+
+In this query, the station name, time of day, the average of the difference of the departure delay and arrival delay, and the total stops of the station are recorded. Unlike the other reports, this report focuses on analyzing the nature of the different stations, and identifying stations that are problematic in terms of causing delays, and stations which do well at recovering from the delays created by earlier stops.
+
+The OLAP operation used in this query is once again, a slice operation on the time-of-day dimension. Below is a sample of the resulting table from this query:
+
+\textbf[Sample Table]
+
+This report shows which stations are bottlenecks and which help recover from delay, dependent on the time of day.
+
+
+
+
+
