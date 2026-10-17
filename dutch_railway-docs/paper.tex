@@ -11,6 +11,19 @@
 \usepackage{tabularx}
 \usepackage{array}
 
+%%
+%% Inline SQL keywords. Use \sql{...}; it works inside tables and captions.
+\definecolor{sqlkeyword}{HTML}{2F5D8C}
+\newcommand{\sql}[1]{\texttt{\textcolor{sqlkeyword}{\bfseries #1}}}
+
+%%
+%% Let long \texttt identifiers break after underscores, and give TeX some
+%% slack before it overfills a line.
+\AtBeginDocument{%
+  \let\oldunderscore\_%
+  \renewcommand{\_}{\oldunderscore\allowbreak}}
+\setlength{\emergencystretch}{1.5em}
+
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
     \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
