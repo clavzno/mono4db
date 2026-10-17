@@ -10,11 +10,30 @@
 
 \usepackage{tabularx}
 \usepackage{array}
+\usepackage{listings}
 
 %%
 %% Inline SQL keywords. Use \sql{...}; it works inside tables and captions.
 \definecolor{sqlkeyword}{HTML}{2F5D8C}
 \newcommand{\sql}[1]{\texttt{\textcolor{sqlkeyword}{\bfseries #1}}}
+
+%%
+%% SQL code blocks, use \begin{lstlisting| ... \end{lstlisting}.
+\lstdefinestyle{sqlstyle}{
+  language=SQL,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{sqlkeyword}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  frame=single,
+  xleftmargin=0pt,
+  aboveskip=6pt,
+  belowskip=6pt
+}
+\lstset{style=sqlstyle}
+
 
 %%
 %% Let long \texttt identifiers break after underscores, and give TeX some
@@ -176,37 +195,37 @@ Statement of Accountability. By submitting this report, we explicitly affirm the
 \textbf{Data Warehouse} & 
 Jack & 
 Database design & 
-Koby & 
+Database design & 
 Exploratory data analysis \\
 \addlinespace[4pt]
 \textbf{ETL Pipeline} & 
 Jack & 
 --- & 
-Koby & 
+--- & 
 Pipeline implementation \\
 \addlinespace[4pt]
 \textbf{OLAP Application} & 
 Jack & 
 --- & 
-Koby & 
+Query ideation and baseline implementation & 
 --- \\
 \addlinespace[4pt]
 \textbf{Functional Testing} & 
 Jack & 
 Performed functional testing & 
-Koby & 
+--- & 
 Test implementation \\
 \addlinespace[4pt]
 \textbf{Performance Testing} & 
 Jack & 
 Optimized queries for reports 1, 2, 4  & 
-Koby & 
+Optimized query for report 3 & 
 Test implementation \\
 \addlinespace[4pt]
 \textbf{Report} & 
 Jack & 
 Wrote \ref{sec:data_warehouse} and \ref{sec:qpo} &
-Koby & 
+Wrote sections 4.1 through 4.5 in \ref{sec:olap_application}  & 
 Wrote \ref{sec:introduction} and \ref{sec:etl_script} \\
 \bottomrule
 \end{tabularx}
