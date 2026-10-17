@@ -1,8 +1,14 @@
 \section{Data Warehouse}\label{sec:data_warehouse}
 
-\textbf{insert image of DB schema here}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/schema.png}
+\caption{Schema of the data warehouse. Dark headers are fact tables and light headers are dimension tables. Each line joins a foreign key (N) to the primary key it references (1).}
+\Description{Entity-relationship diagram of the warehouse. fact\_service references dim\_date through date\_key. fact\_stop references fact\_service through rdt\_id, dim\_time through arrival\_time and departure\_time, and dim\_station through station\_code.}
+\label{fig:schema}
+\end{figure*}
 
-The creation of the database schema seen in [Figure 1] was informed by the aforementioned EDA and domain knowledge. Given that the schema utilizes 2 fact tables, 
+The creation of the database schema seen in Figure~\ref{fig:schema} was informed by the aforementioned EDA and domain knowledge. Given that the schema utilizes 2 fact tables, 
 \textit{fact\_service} and \textit{fact\_stop}, it is a galaxy schema by definition, though it retains the principles of a star schema design as well. The decision 
 to use two fact tables was driven the difference in granularity between the two tables, as the service table corresponds to a train's entire trip, while the stop 
 table represents one arrival or departure within a trip. 
