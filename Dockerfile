@@ -12,8 +12,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV BUILD_STANDALONE=true
 COPY dutch_railway-app/ ./
 COPY dutch_railway/qpo/queries/ /workspace/dutch_railway/qpo/queries/
-RUN mkdir -p public
 RUN node /usr/local/lib/node_modules/npm/bin/npm-cli.js run build
+RUN mkdir -p .next/standalone/dutch_railway-app/public \
+    && if [ -d public ]; then \
+         cp -a public/. .next/standalone/dutch_railway-app/public/; \
+       fi
 
 FROM node:22-bookworm-slim AS runner
 ENV NODE_ENV=production
@@ -24,7 +27,6 @@ WORKDIR /workspace/dutch_railway-app
 
 COPY --from=builder --chown=node:node /workspace/dutch_railway-app/.next/standalone/ /workspace/
 COPY --from=builder --chown=node:node /workspace/dutch_railway-app/.next/static/ ./.next/static/
-COPY --from=builder --chown=node:node /workspace/dutch_railway-app/public/ ./public/
 COPY --from=builder --chown=node:node /workspace/dutch_railway/qpo/queries/ /workspace/dutch_railway/qpo/queries/
 
 USER node
