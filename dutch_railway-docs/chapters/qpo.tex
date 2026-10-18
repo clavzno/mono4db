@@ -12,14 +12,15 @@ trains, the fact tables center on the services and stops to reflect it. Addition
 significantly less JOINS being utilized, which speeds up the process significantly. While the most optimal dataset in terms of raw speed would 
 be one large table, this would be incredibly impractical, bloated, and difficult to read for humans.  
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/unoptimized-query-one.png}
-\caption{An unoptimized versus optimized version of Report 1}
-\label{fig:query_one_optimized}
-\end{figure}
+\includegraphics[width=0.8\textwidth]{figures/qpo_report2.png}
+\caption{Baseline and optimized plans of Report 2 (Company Monthly Rank by On-Time Rate). Highlighted nodes mark where the two plans differ.}
+\Description{Two query plan trees side by side. In the baseline, a correlated subquery that scans and joins the fact tables runs once for each of the 176 rows of the outer result. In the optimized plan, the aggregated result is materialized once and the rank is computed from the 176 stored rows.}
+\label{fig:qpo_report2}
+\end{figure*}
 
-However, a well-designed database does not necessarily mean a query will be efficient. As seen in (Figure~\ref{fig:query_one_optimized}), the query is 
+However, a well-designed database does not necessarily mean a query will be efficient. As seen in (Figure~\ref{fig:qpo_report2}), the query is 
 significantly slowed down through the heavy weight of its subqueries, which are run multiple times. This can be resolved through another effective method 
 of query optimization, the use of query restructuring or pre-aggregation. In the case of the first report, the execution time of the query is drastically
 reduced when utilizing common table expressions that are turned into materialized views. Materialized views essentially store a pre-computed result into 
@@ -31,6 +32,30 @@ companies by about half, it did not reduce it nearly as much since the result is
 Another example of pre-aggregation is used in the optimization of report 4. An approximately 33\% reduction was achieved through pre-aggregating the stop 
 fact table's station codes before joining it later on rather than having the JOIN before aggregation. While the baseline was already somewhat quick, minor 
 optimizations like this can make a difference during actual usage.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/qpo_report1.png}
+\caption{Baseline and optimized plans of Report 1 (On-Time Trends). Highlighted nodes mark where the two plans differ.}
+\Description{Two query plan trees side by side. In the baseline, the same rollup aggregation over the stops is computed in two identical branches and then joined. In the optimized plan, the aggregation is materialized once as a CTE and both sides of the join read it.}
+\label{fig:qpo_report1}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/qpo_report3.png}
+\caption{Baseline and optimized plans of Report 3 (Underperforming Trains in Companies). Highlighted nodes mark where the two plans differ.}
+\Description{Two query plan trees side by side. In the baseline, two branches each scan and join the stop and service tables, one aggregating per train and one per company. In the optimized plan, an index on company name finds the services, the stops are aggregated once per train, and a window function derives the company average from the per-train sums.}
+\label{fig:qpo_report3}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/qpo_report4.png}
+\caption{Baseline and optimized plans of Report 4 (Station Delay Recovery and Addition). Highlighted nodes mark where the two plans differ.}
+\Description{Two query plan trees side by side. In the baseline, the station dimension is joined to every stop before grouping by station name. In the optimized plan, the stops are grouped by station code first and the station dimension is joined to the grouped rows.}
+\label{fig:qpo_report4}
+\end{figure*}
 
 Lastly, indexing is a fairly commonly used optimization technique for frequently accessed columns that are not already primary or foreign keys. This particular 
 method was only really applied for report 3, as the others gained major leaps in optimization already through the use of pre-aggregation and materialized views.
