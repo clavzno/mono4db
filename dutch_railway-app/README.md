@@ -36,3 +36,8 @@ If it's not your first rodeo:
 
 ## Deployed version
 
+The Railway deployment uses the `Dockerfile` and `Dockerfile.dockerignore` at the repository root. Keep Railway's Root Directory unset, remove the old `RAILWAY_DOCKERFILE_PATH` variable pointing to `dutch_railway-app/Dockerfile`, and leave build/start command overrides unset. If Railway has an explicit Dockerfile Path field, use `Dockerfile`.
+
+Push these files to the connected fork and branch, apply pending Railway settings changes, and deploy the latest commit. Set the app's `DATABASE_URL` to reference the hosted PostgreSQL service and import the warehouse before running reports.
+
+See [RAILWAY.md](./RAILWAY.md) for the complete deployment and database setup instructions.

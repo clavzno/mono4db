@@ -9,10 +9,12 @@ Push the deployment files to the fork and branch connected to your Railway servi
 | Setting | Value |
 | --- | --- |
 | Root Directory | Leave unset so the build uses the repository root |
-| Variable: `RAILWAY_DOCKERFILE_PATH` | `dutch_railway-app/Dockerfile` |
+| Variable: `RAILWAY_DOCKERFILE_PATH` | Remove the old nested path; the root `Dockerfile` is detected automatically |
 | Build command override | Leave unset |
 | Start command override | Leave unset |
 | Variable: `DATABASE_URL` | Reference the PostgreSQL service's `DATABASE_URL` |
+
+The deployment `Dockerfile` and its `Dockerfile.dockerignore` are at the repository root. This lets Railway detect Docker directly. If the service exposes an explicit Dockerfile Path setting, set it to `Dockerfile`. Apply pending settings changes before deploying the latest commit. The build log should say `Using detected Dockerfile!` and show the `/workspace/dutch_railway-app` working directory.
 
 If the database service is named `Postgres`, the app variable is:
 
@@ -42,14 +44,14 @@ Do not use `localhost:5433` or `dutch_railway_db:5432` in Railway. Those address
 2. Open `/api/companies` on that domain and confirm that it returns company names.
 3. Run all four reports, then check CSV and PDF exports.
 
-An HTTP 503 from a report or company endpoint means the backend could not complete its work. Check deployment logs, the database connection, and the imported tables. A missing SQL file usually means the service used the app folder as its build root instead of the repository root.
+An HTTP 503 from a report or company endpoint means the backend could not complete its work. Check deployment logs, the database connection, and the imported tables. If a build cannot find `/dutch_railway/qpo/queries/dashboard/companies.sql`, inspect the beginning of the full build log. The root Dockerfile places that file at `/workspace/dutch_railway/qpo/queries/dashboard/companies.sql`; a different path indicates a different build layout. Confirm Root Directory is unset, the deployment uses the latest commit containing the root Dockerfile, and no nested Dockerfile path or build/start command override remains.
 
 ## Build and run locally
 
 Run these commands from the repository root in PowerShell:
 
 ```powershell
-docker build -f dutch_railway-app/Dockerfile -t dutch-railway-app .
+docker build -t dutch-railway-app .
 docker run --rm -p 3001:3000 --env-file dutch_railway-app/.env dutch-railway-app
 ```
 

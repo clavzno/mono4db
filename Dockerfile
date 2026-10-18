@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 
+# Build from the repository root to include the app and its sibling SQL files.
+
 FROM node:22-bookworm-slim AS dependencies
 WORKDIR /workspace/dutch_railway-app
 COPY dutch_railway-app/package.json dutch_railway-app/package-lock.json ./
