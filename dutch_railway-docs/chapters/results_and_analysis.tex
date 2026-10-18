@@ -11,6 +11,14 @@ Before any timing, we check that the optimized query returns exactly the same re
 
 \subsubsection{Performance testing}
 Each query is then run once as a warm-up and three more times for measurement. We record the median execution time and the cost that PostgreSQL's planner estimates for the query (Table~\ref{tab:results}). Every run happens inside a transaction that is rolled back afterwards, so an index created for one optimized query never speeds up another query or a later baseline.
+This was run on a desktop computer with the following specifications:
+\begin{itemize}
+    \item AMD Ryzen 5 3600 6-Core Processor
+    \item NVIDIA GeForce RTX 3050
+    \item 16GB RAM
+    \item Windows 11
+\end{itemize}
+
 
 \begin{table}[htbp]
     \centering

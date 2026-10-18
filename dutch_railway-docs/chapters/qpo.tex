@@ -33,29 +33,6 @@ Another example of pre-aggregation is used in the optimization of report 4. An a
 fact table's station codes before joining it later on rather than having the JOIN before aggregation. While the baseline was already somewhat quick, minor 
 optimizations like this can make a difference during actual usage.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/qpo_report1.png}
-\caption{Baseline and optimized plans of Report 1 (On-Time Trends). Highlighted nodes mark where the two plans differ.}
-\Description{Two query plan trees side by side. In the baseline, the same rollup aggregation over the stops is computed in two identical branches and then joined. In the optimized plan, the aggregation is materialized once as a CTE and both sides of the join read it.}
-\label{fig:qpo_report1}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/qpo_report3.png}
-\caption{Baseline and optimized plans of Report 3 (Underperforming Trains in Companies). Highlighted nodes mark where the two plans differ.}
-\Description{Two query plan trees side by side. In the baseline, two branches each scan and join the stop and service tables, one aggregating per train and one per company. In the optimized plan, an index on company name finds the services, the stops are aggregated once per train, and a window function derives the company average from the per-train sums.}
-\label{fig:qpo_report3}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/qpo_report4.png}
-\caption{Baseline and optimized plans of Report 4 (Station Delay Recovery and Addition). Highlighted nodes mark where the two plans differ.}
-\Description{Two query plan trees side by side. In the baseline, the station dimension is joined to every stop before grouping by station name. In the optimized plan, the stops are grouped by station code first and the station dimension is joined to the grouped rows.}
-\label{fig:qpo_report4}
-\end{figure*}
 
 Lastly, indexing is a fairly commonly used optimization technique for frequently accessed columns that are not already primary or foreign keys. This particular 
 method was only really applied for report 3, as the others gained major leaps in optimization already through the use of pre-aggregation and materialized views.
