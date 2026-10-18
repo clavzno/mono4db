@@ -18,14 +18,14 @@ Each query is then run once as a warm-up and three more times for measurement. W
     \caption{Benchmark results comparing baseline and optimized query performance}
     \Description{Comparison of baseline and optimized query execution times and optimizer costs across four analytical queries.}
     \label{tab:results}
-    \begin{tabularx}{\columnwidth}{l *{4}{>{\raggedleft\arraybackslash}X}}
+    \begin{tabularx}{\columnwidth}{l *{5}{>{\raggedleft\arraybackslash}X}}
         \toprule
-        \textbf{Query} & \textbf{Base (ms)} & \textbf{Base Cost} & \textbf{Opt (ms)} & \textbf{Opt Cost} \\
+        \textbf{Query} & \textbf{Base (ms)} & \textbf{Base Cost} & \textbf{Opt (ms)} & \textbf{Opt Cost} & \textbf{Speedup} \\
         \midrule
-        Query 1 & 285545.856 & 231552640.66 & 3749.232 & 494768.04 \\
-        Query 2 & 55647.551 & 8938976.19 & 25428.777 & 4936684.24 \\
-        Query 3 & 3027.783 & 342056.93 & -- & -- \\
-        Query 4 & 14806.901 & 1006126.55 & -- & -- \\
+        Query 1 & 285921.75 & 231552640.66 & 3751.09 & 494768.04 & 76.22\%\\
+        Query 2 & 55692.75 & 8938976.19 & 25451.71 & 4936684.24 & 54.3\%\\
+        Query 3 & 2953.06 & 342038.59 & 2096.69 & 330582.46 & 29.0\%\\
+        Query 4 & 12246.98 & 955679.80 & 6985.88 & 494774.83 & 43.0\% \\
         \bottomrule
     \end{tabularx}
 \end{table}
