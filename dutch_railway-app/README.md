@@ -34,6 +34,12 @@ Postgres uses a server-based approach. so this doesn't need to have a docker at 
 ENSURE the env with the database and -app ARE THE SAME (check discord server) copy paste that and leave it as is.
 
 # Startup
+
+## First time evr
 1. in dutch_railway: `docker build` (once)
-2. `docker compose up -d`
-3. in dutch_railway-app: `npm.cmd run dev`
+2. in dutch_railway: `docker compose up -d`
+3. in dutch_railway-app: `npm.cmd i` 
+4. in dutch_railway-app: `npm.cmd run dev`
+
+## Not ur first time?
+- do everything but 1.

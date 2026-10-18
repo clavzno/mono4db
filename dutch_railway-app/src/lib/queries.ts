@@ -1,111 +1,26 @@
 import "server-only";
 
-// Query 1. No parameters. Preserves the baseline week grouping and prior-period joins.
-// Source: dutch_railway/qpo/queries/company_ontime_drilldown/baseline.sql
+// Query 1. Parameters: [companyName or null, fromDate, toDate].
+// Daily counts support weighted calendar drill-down without mixing week-years.
 export const onTimeTrendsQuery = `
-SELECT
-    cur.company_name,
-    cur.quarter,
-    cur.month,
-    cur.week,
-    cur.total_stops,
-    cur.on_time_rate,
-    ROUND(cur.on_time_rate - prev.on_time_rate, 2) AS rate_change
-
-FROM (
-    SELECT
-        fsv.company_name,
-        wm.min_quarter AS quarter,
-        wm.min_month AS month,
-        d.week,
-        COUNT(*) AS total_stops,
-        ROUND(100.0 * SUM(CASE WHEN fst.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS on_time_rate
-
-    FROM fact_stop AS fst
-    JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
-    JOIN dim_date AS d ON d.date_key = fsv.date_key
-    JOIN (
-        SELECT week, MIN(quarter) AS min_quarter, MIN(month) AS min_month
-        FROM dim_date
-        GROUP BY week
-    ) AS wm ON wm.week = d.week
-
-    WHERE fst.cancel_status IN ('none', 'departure-only')
-    AND fst.arrival_delay IS NOT NULL
-
-    GROUP BY fsv.company_name,
-    ROLLUP (wm.min_quarter, wm.min_month, d.week)
-) AS cur
-
-LEFT JOIN (
-    SELECT
-        fsv.company_name,
-        wm.min_quarter AS quarter,
-        wm.min_month AS month,
-        d.week,
-        ROUND(100.0 * SUM(CASE WHEN fst.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS on_time_rate
-
-    FROM fact_stop AS fst
-    JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
-    JOIN dim_date AS d ON d.date_key = fsv.date_key
-    JOIN (
-        SELECT week, MIN(quarter) AS min_quarter, MIN(month) AS min_month
-        FROM dim_date
-        GROUP BY week
-    ) AS wm ON wm.week = d.week
-
-    WHERE fst.cancel_status IN ('none', 'departure-only')
-    AND fst.arrival_delay IS NOT NULL
-
-    GROUP BY fsv.company_name,
-    ROLLUP (wm.min_quarter, wm.min_month, d.week)
-) AS prev
-
-ON prev.company_name = cur.company_name
-AND (
-        (cur.month IS NULL AND cur.quarter IS NOT NULL
-        AND prev.month IS NULL AND prev.quarter = cur.quarter - 1)
-    OR
-        (cur.week IS NULL AND cur.month IS NOT NULL
-        AND prev.week IS NULL AND prev.month = cur.month - 1)
-    OR
-        (cur.week IS NOT NULL AND prev.week = cur.week - 1)
-    )
-
-ORDER BY cur.company_name, cur.quarter, cur.month, cur.week;
+SELECT d.service_date::text AS date,
+    COUNT(*) AS eligible,
+    COUNT(*) FILTER (WHERE fst.arrival_delay = 0) AS on_time
+FROM fact_stop AS fst
+JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
+JOIN dim_date AS d ON d.date_key = fsv.date_key
+WHERE fst.cancel_status IN ('none', 'departure-only')
+  AND fst.arrival_delay IS NOT NULL
+  AND ($1::text IS NULL OR fsv.company_name = $1)
+  AND d.service_date BETWEEN $2::date AND $3::date
+GROUP BY d.service_date
+ORDER BY d.service_date;
 `;
 
 // Query 2. Parameters: [timeOfDay], using morning, afternoon, or night.
-// Source: dutch_railway/qpo/queries/company_monthly_rank_by_tod/baseline.sql
+// Source: dutch_railway/qpo/queries/company_monthly_rank_by_tod/optimized.sql
 export const companyComparisonQuery = `
-SELECT
-    cur.company_name,
-    cur.month,
-    cur.on_time_rate,
-    cur.avg_arrival_delay,
-    1 + (
-        SELECT COUNT(*)
-
-        FROM (
-            SELECT fsv2.company_name
-
-            FROM fact_stop AS fst2
-            JOIN fact_service AS fsv2 ON fsv2.rdt_id = fst2.rdt_id
-            JOIN dim_date AS d2 ON d2.date_key = fsv2.date_key
-            JOIN dim_time AS t2 ON t2.time_key = fst2.arrival_time
-
-            WHERE fst2.cancel_status IN ('none', 'departure-only')
-            AND fst2.arrival_delay IS NOT NULL
-            AND t2.time_of_day = $1
-            AND d2.month = cur.month
-
-            GROUP BY fsv2.company_name, d2.month
-            HAVING ROUND(100.0 * SUM(CASE WHEN fst2.arrival_delay = 0 THEN 1 ELSE 0 END) / COUNT(*), 2)
-                   > cur.on_time_rate
-        ) AS better_thans
-    ) AS rank
-
-FROM (
+WITH cur AS MATERIALIZED(
     SELECT
         fsv.company_name,
         d.month,
@@ -122,9 +37,24 @@ FROM (
     AND t.time_of_day = $1
 
     GROUP BY fsv.company_name, d.month
-) AS cur
+)
 
-ORDER BY cur.month, rank;
+SELECT
+    cur.company_name,
+    cur.month,
+    cur.on_time_rate,
+    cur.avg_arrival_delay,
+    1 + (
+        SELECT COUNT(*)
+
+        FROM cur AS better
+        WHERE better.month = cur.month AND better.on_time_rate > cur.on_time_rate
+
+    ) AS rank
+
+FROM cur
+
+ORDER BY cur.month, rank, cur.company_name;
 `;
 
 // Query 3. Parameters: [companyName, trainLimit].
