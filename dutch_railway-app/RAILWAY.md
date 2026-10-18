@@ -14,7 +14,7 @@ Push the deployment files to the fork and branch connected to your Railway servi
 | Start command override | Leave unset |
 | Variable: `DATABASE_URL` | Reference the PostgreSQL service's `DATABASE_URL` |
 
-The deployment `Dockerfile` and its `Dockerfile.dockerignore` are at the repository root. This lets Railway detect Docker directly. If the service exposes an explicit Dockerfile Path setting, set it to `Dockerfile`. Apply pending settings changes before deploying the latest commit. The build log should say `Using detected Dockerfile!` and show the `/workspace/dutch_railway-app` working directory.
+The deployment `Dockerfile` and `.dockerignore` are at the repository root. This lets Railway detect Docker directly. If the service exposes an explicit Dockerfile Path setting, set it to `Dockerfile`. Apply pending settings changes before deploying the latest commit. The build log should say `Using detected Dockerfile!` and show the `/workspace/dutch_railway-app` working directory.
 
 If the database service is named `Postgres`, the app variable is:
 
@@ -26,7 +26,7 @@ Use Railway's variable picker if the database service has another name. Keep thi
 
 The image builds a standalone Next.js server and runs it as a non-root user. It listens on `0.0.0.0` and reads Railway's `PORT`, with 3000 as the default. Local `npm.cmd run dev`, `npm.cmd run build`, and `npm.cmd start` retain their existing behavior because standalone output is enabled only when `BUILD_STANDALONE=true` during the container build.
 
-The Dockerfile-specific ignore file excludes local environment files, installed dependencies, build output, and unrelated repository directories. The build does not need database credentials. Railway must allow outbound access to the package registry and Google Fonts during the build.
+The root `.dockerignore` excludes local environment files, installed dependencies, build output, and unrelated repository directories. Application and SQL sources remain included by default. The build does not need database credentials. Railway must allow outbound access to the package registry and Google Fonts during the build.
 
 ## Warehouse database
 
