@@ -8,6 +8,8 @@ export type TrainRow = {
 export type TrainReport = {
   companyName: string;
   requestedLimit: number;
-  companyOnTimeRate: number | null;
+  from: string;
+  to: string;
+  companyAverageDelay: number | null;
   rows: TrainRow[];
 };

@@ -4,7 +4,7 @@ import { init, use as registerCharts } from "echarts/core";
 import { BarChart } from "echarts/charts";
 import { AriaComponent, GridComponent, TooltipComponent, DataZoomComponent } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
-import type { TrendRow } from "@/lib/on-time-report-types";
+import type { DisplayTrendRow as TrendRow } from "./on-time-data";
 registerCharts([BarChart, AriaComponent, GridComponent, TooltipComponent, DataZoomComponent, SVGRenderer]);
 
 export default function OnTimeChart({ rows, canDrill, onDrill }: { rows: TrendRow[]; canDrill: boolean; onDrill: (row: TrendRow) => void }) {
@@ -18,9 +18,9 @@ export default function OnTimeChart({ rows, canDrill, onDrill }: { rows: TrendRo
       grid: { left: 15, right: 20, top: 30, bottom: rows.length > 12 ? 80 : 35, containLabel: true },
       xAxis: { type: "category", data: rows.map((row) => row.period), axisLabel: { hideOverlap: true } },
       yAxis: { type: "value", min: 0, max: 100, axisLabel: { formatter: "{value}%" } },
-      tooltip: { trigger: "axis", renderMode: "richText", valueFormatter: (value: number) => `${value.toFixed(2)}%` },
+      tooltip: { trigger: "axis", renderMode: "richText", valueFormatter: (value: unknown) => typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)}%` : "N/A" },
       dataZoom: rows.length > 12 ? [{ type: "slider", xAxisIndex: 0, startValue: 0, endValue: 11 }] : [],
-      series: [{ name: "On-time arrivals", type: "bar", cursor: canDrill ? "pointer" : "default", barMaxWidth: 58, itemStyle: { color: "#26588c", borderRadius: [4, 4, 0, 0] }, label: { show: rows.length <= 12, position: "top", formatter: (params: { value: number }) => `${params.value.toFixed(1)}%` }, data: rows.map((row) => row.rate) }],
+      series: [{ name: "On-time arrivals", type: "bar", cursor: canDrill ? "pointer" : "default", barMaxWidth: 58, itemStyle: { color: "#26588c", borderRadius: [4, 4, 0, 0] }, label: { show: rows.length <= 12, position: "top", formatter: (params: { value: number }) => `${params.value.toFixed(2)}%` }, data: rows.map((row) => row.rate) }],
     });
     chart.on("click", (event) => { if (canDrill && typeof event.dataIndex === "number" && rows[event.dataIndex]) onDrill(rows[event.dataIndex]); });
     const observer = new ResizeObserver(() => chart.resize());

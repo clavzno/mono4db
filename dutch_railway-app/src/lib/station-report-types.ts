@@ -6,4 +6,4 @@ export type StationRow = {
   averageDelayChange: number;
   totalStops: number;
 };
-export type StationReport = { timeOfDay: TimePeriod; rows: StationRow[] };
+export type StationReport = { timeOfDay: TimePeriod; from: string; to: string; recovery: boolean; rows: StationRow[] };
