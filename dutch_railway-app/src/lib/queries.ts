@@ -177,21 +177,29 @@ SELECT EXISTS (SELECT 1 FROM fact_service WHERE company_name = $1) AS exists;
 `;
 
 // Query 4. Parameters: [timeOfDay], using morning, afternoon, or night. No row limit.
-// Source: dutch_railway/qpo/queries/station_delay_train_recovery/baseline.sql
+// Source: dutch_railway/qpo/queries/station_delay_train_recovery/optimized.sql
 // Positive change means added delay; DESC puts the largest increases first.
 export const stationDelayQuery = `
+WITH sc_agg AS (
+    SELECT
+        fst.station_code,
+        t.time_of_day,
+        ROUND(AVG(fst.departure_delay - fst.arrival_delay), 2) AS avg_delay_change,
+        COUNT(*) AS total_stops
+    FROM fact_stop AS fst
+    JOIN dim_time AS t ON t.time_key = fst.arrival_time
+    WHERE fst.cancel_status = 'none'
+    AND fst.arrival_delay   IS NOT NULL
+    AND fst.departure_delay IS NOT NULL
+    AND t.time_of_day = $1
+    GROUP BY fst.station_code, t.time_of_day
+)
 SELECT
     s.station_name,
-    t.time_of_day,
-    ROUND(AVG(fst.departure_delay - fst.arrival_delay), 2) AS avg_delay_change,
-    COUNT(*) AS total_stops
-FROM fact_stop AS fst
-JOIN dim_station AS s ON s.station_code = fst.station_code
-JOIN dim_time    AS t ON t.time_key     = fst.arrival_time
-WHERE fst.cancel_status = 'none'
-AND fst.arrival_delay   IS NOT NULL
-AND fst.departure_delay IS NOT NULL
-AND t.time_of_day = $1
-GROUP BY s.station_name, t.time_of_day
-ORDER BY avg_delay_change DESC, s.station_name ASC;
+    sc_agg.time_of_day,
+    sc_agg.avg_delay_change,
+    sc_agg.total_stops
+FROM sc_agg
+JOIN dim_station AS s ON s.station_code = sc_agg.station_code
+ORDER BY sc_agg.avg_delay_change DESC, s.station_name ASC;
 `;
