@@ -124,6 +124,11 @@ def print_summary_table(all_metrics: list[dict]) -> None:
         print(row)
 
 
+def print_check_failure(check: CheckResult) -> None:
+    print(f"  FAILED: {check.message}")
+    for label, rows in (("only in baseline", check.only_in_baseline), ("only in optimized", check.only_in_optimized)):
+        for row in rows:
+            print(f"    {label}: {tuple(row)}")
 
 
 def main() -> int:
@@ -150,6 +155,7 @@ def main() -> int:
 
     print(f"Queries to {'check' if args.check_only else 'benchmark'}: {[q.name for q in query_dirs]}")
     all_metrics = []
+    failed = []
 
     try:
         for q_dir in query_dirs:
@@ -157,6 +163,10 @@ def main() -> int:
 
             print(" - [1 Check] Comparing the results of baseline.sql and optimized.sql...")
             check = check_equivalence(conn, q_dir)
+            if not check.passed:
+                print_check_failure(check)
+                failed.append(q_dir.name)
+                continue
             print(f"  OK: {check.message}")
             if args.check_only:
                 continue
@@ -203,7 +213,9 @@ def main() -> int:
 
     if all_metrics:
         print_summary_table(all_metrics)
-
+    if failed:
+        print(f"\nFAILED (optimized result differs from baseline): {failed}")
+        return 1
     if args.check_only:
         print(f"\nAll {len(query_dirs)} optimized queries return the same result as their baseline.")
     return 0
