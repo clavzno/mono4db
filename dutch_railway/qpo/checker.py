@@ -29,7 +29,7 @@ class CheckResult:
     message: str
     baseline_rows: int = 0
     optimized_rows: int = 0
-    only_in_baseline: list[list[Any]] = field(default_factory=list)  # up to SAMPLE_ROWS each
+    only_in_baseline: list[list[Any]] = field(default_factory=list)  
     only_in_optimized: list[list[Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -80,7 +80,7 @@ def check_equivalence(conn, q_dir: Path) -> CheckResult:
                 return CheckResult(
                     name, False, f"Columns differ: baseline {baseline_cols}, optimized {optimized_cols}",
                     baseline_rows, optimized_rows,
-                )  # fmt: skip
+                )  
 
             missing, only_in_baseline = _difference(cur, "qpo_baseline", "qpo_optimized")
             extra, only_in_optimized = _difference(cur, "qpo_optimized", "qpo_baseline")

@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock
 
-# Same import roots Airflow uses: dags/ (the etl package) and config/ (etl_config)
 _PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(_PROJECT / "dags"), str(_PROJECT / "config")]
 

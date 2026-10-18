@@ -40,10 +40,8 @@ QPO_DIR = Path(__file__).resolve().parent
 QUERIES_DIR = QPO_DIR / "queries"
 RESULTS_DIR = QPO_DIR / "results"
 
-# The database URL comes from etl_config, same as the ETL. Outside Docker it defaults
-# to localhost:5433; inside, compose sets DUTCH_RAILWAY_DB_URL.
 sys.path.insert(0, str(QPO_DIR.parent / "config"))
-import etl_config as config  # noqa: E402
+import etl_config as config  
 
 
 def parse_args() -> argparse.Namespace:
@@ -141,7 +139,6 @@ def main() -> int:
 
     RESULTS_DIR.mkdir(exist_ok=True)
     if not args.query and not args.check_only:
-        # A full run replaces every result, so results of deleted queries don't linger
         for stale in RESULTS_DIR.glob("*.json"):
             stale.unlink()
 
