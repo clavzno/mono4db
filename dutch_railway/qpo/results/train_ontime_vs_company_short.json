@@ -1,15 +1,15 @@
 {
   "baseline": {
-    "Total Cost": 955679.8,
+    "Total Cost": 1005629.9,
     "Plan Rows": 5,
-    "Actual Total Time": 16895.16,
+    "Actual Total Time": 4092.339,
     "Actual Rows": 5,
     "Actual Loops": 1
   },
   "optimized": {
-    "Total Cost": 494774.83,
+    "Total Cost": 519654.87,
     "Plan Rows": 5,
-    "Actual Total Time": 10174.18,
+    "Actual Total Time": 1863.219,
     "Actual Rows": 5,
     "Actual Loops": 1
   }

@@ -1,7 +1,10 @@
 # README
 
-Last updated: 10/15/26 2:23AM
-This will be updated later. .env.example may become .env
+Last updated: 10/18/26 10:07PM
+
+This is the accompanying web application to run and display the results of the queries. 
+
+Postgres uses a server-based approach. so this doesn't need to have a docker at all. We can simply run the database from dutch_railway (run docker compose up) then from -app npm run dev. ENSURE the env with the database and -app ARE THE SAME (check discord server) copy paste that and leave it as is. - @zrygan
 
 ## Project Setup (You don't need to do this)
 
@@ -19,21 +22,10 @@ This will be updated later. .env.example may become .env
 
 ## Run Project
 
-- `npm.cmd i` (install dependencies)
-- Get the `.env` values from Jack, see `.env.example`. Put it into `.env` or `.env.local`
-- ???
-- at the database project, `docker compose up -d`
-- Profit
-
----
-
-Note from @zrygan. Remove later.
-
-Postgres uses a server-based approach. so this doesn't need to have a docker at all. We can simply run the database from dutch_railway (run docker compose up) then from -app npm run dev.
-
-ENSURE the env with the database and -app ARE THE SAME (check discord server) copy paste that and leave it as is.
-
-# Startup
-1. in dutch_railway: `docker build` (once)
-2. `docker compose up -d`
-3. in dutch_railway-app: `npm.cmd run dev`
+If it's your first time cloning the repo:
+- Make sure you have the exact same .env as the one in Discord
+- Run these while in dutch_railway: `docker build` (once)
+- `docker compose up -d`
+- Move to dutch_railway-app, and run: `npm.cmd i` (once, unless packages are updated)
+- To start the app: `npm.cmd run dev`
+- Open the app in your browser through localhost:3000.
