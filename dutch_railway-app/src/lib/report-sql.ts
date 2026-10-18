@@ -36,5 +36,5 @@ export function adaptStationQuery(source: string, recovery = false): string {
     "t.time_of_day = $1\nAND fst.rdt_id IN (SELECT rdt_id FROM fact_service WHERE date_key BETWEEN to_char($2::date, 'YYYYMMDD')::integer AND to_char($3::date, 'YYYYMMDD')::integer)");
   sql = replaceOnce(sql, /ORDER BY avg_delay_change DESC/,
     `ORDER BY avg_delay_change ${recovery ? "ASC" : "DESC"}, s.station_code ASC`);
-  return replaceOnce(sql, /LIMIT 5;/, "LIMIT 5;");
+  return replaceOnce(sql, /LIMIT 5;/, "LIMIT $4;");
 }

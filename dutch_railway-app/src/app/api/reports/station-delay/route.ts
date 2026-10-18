@@ -1,6 +1,6 @@
 import { validDate } from "@/lib/on-time-report-types";
 import { getStationReport } from "@/lib/station-report";
-import { timePeriods, type TimePeriod } from "@/lib/station-report-types";
+import { timePeriods, validStationCount, type TimePeriod } from "@/lib/station-report-types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,6 +9,10 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const timeOfDay = params.get("timeOfDay");
   const order = params.get("order") ?? "addition";
+  const limit = params.get("limit") ?? "5";
+  if (params.getAll("limit").length > 1 || !validStationCount(limit)) {
+    return Response.json({ error: "Choose a whole number of stations from 1 to 100." }, { status: 400 });
+  }
   if (params.getAll("order").length > 1 || !["addition", "recovery"].includes(order)) {
     return Response.json({ error: "Choose delay addition or recovery." }, { status: 400 });
   }
@@ -22,7 +26,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Select morning, afternoon, or night." }, { status: 400 });
   }
   try {
-    return Response.json(await getStationReport(timeOfDay as TimePeriod, from, to, order === "recovery"), { headers: { "Cache-Control": "no-store" } });
+    return Response.json(await getStationReport(timeOfDay as TimePeriod, from, to, order === "recovery", Number(limit)), { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
     console.error(`Warehouse station report failed. Code: ${code}`);

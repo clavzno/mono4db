@@ -7,4 +7,8 @@ export type StationRow = {
   averageDelayChange: number;
   totalStops: number;
 };
-export type StationReport = ExportableResult & { timeOfDay: TimePeriod; from: string; to: string; recovery: boolean; rows: StationRow[] };
+export type StationReport = ExportableResult & { timeOfDay: TimePeriod; from: string; to: string; recovery: boolean; requestedLimit: number; rows: StationRow[] };
+
+export function validStationCount(value: unknown): boolean {
+  return typeof value === "string" && /^\d+$/.test(value) && Number.isSafeInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 100;
+}
