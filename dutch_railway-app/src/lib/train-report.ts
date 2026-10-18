@@ -1,6 +1,6 @@
 import "server-only";
 
-import { query } from "./db";
+import { query, queryWithOutput } from "./db";
 import { companiesQuery, companyExistsQuery, underperformingTrainsQuery } from "./queries";
 import type { TrainReport } from "./train-report-types";
 
@@ -20,8 +20,9 @@ export async function getCompanies(): Promise<string[]> {
 export async function getTrainReport(companyName: string, requestedLimit: number, from: string, to: string): Promise<TrainReport | null> {
   const [company] = await query<{ exists: boolean }>(companyExistsQuery, [companyName]);
   if (!company?.exists) return null;
-  const rows = await query<WarehouseRow>(underperformingTrainsQuery(), [companyName, requestedLimit, from, to]);
+  const { rows, sqlOutput } = await queryWithOutput<WarehouseRow>(underperformingTrainsQuery(), [companyName, requestedLimit, from, to]);
   return {
+    sqlOutput,
     companyName,
     requestedLimit,
     from,

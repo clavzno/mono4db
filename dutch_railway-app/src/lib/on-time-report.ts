@@ -1,5 +1,5 @@
 import "server-only";
-import { query } from "./db";
+import { query, queryWithOutput } from "./db";
 import { companyExistsQuery, onTimeTrendsQuery } from "./queries";
 import type { Level, OnTimeReport } from "./on-time-report-types";
 
@@ -12,8 +12,8 @@ export async function getOnTimeReport(companyName: string | null, from: string, 
     const [company] = await query<{ exists: boolean }>(companyExistsQuery, [companyName]);
     if (!company?.exists) return null;
   }
-  const rows = await query<WarehouseRow>(onTimeTrendsQuery(), [companyName, from, to]);
-  return { companyName, from, to, level, rows: rows.map((row) => ({
+  const { rows, sqlOutput } = await queryWithOutput<WarehouseRow>(onTimeTrendsQuery(), [companyName, from, to]);
+  return { companyName, from, to, level, sqlOutput, rows: rows.map((row) => ({
     companyName: row.company_name, quarter: row.quarter, month: row.month, week: row.week,
     eligible: Number(row.total_stops), rate: Number(row.on_time_rate),
     change: row.rate_change === null ? null : Number(row.rate_change),

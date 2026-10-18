@@ -1,0 +1,30 @@
+.report-export-buttons { display: grid; gap: 6px; max-width: 440px; }
+.export-message { font-size: 11px; line-height: 1.5; color: #526780; }
+.report-print-heading { display: none; }
+.report-print-frame { position: fixed; right: 0; bottom: 0; width: 900px; height: 1px; border: 0; pointer-events: none; opacity: 0; }
+@page { size: A4 portrait; margin: 14mm; }
+@media print {
+  body { background: white; color: #17283e; }
+  [hidden] { display: none !important; }
+  .site-header, .page-heading, .report-navigation, .report-panel, .notice, .report-export-buttons, .chart-settings, .zoom-button, .station-chart-controls, .disclosure-chevron, .results-disclosure > summary, nextjs-portal { display: none !important; }
+  .dashboard-shell, .dashboard-main { max-width: none; margin: 0; padding: 0; }
+  .report-print-heading { display: block; border-bottom: 2px solid #26588c; padding-bottom: 8px; margin-bottom: 12px; }
+  .report-print-heading h1 { font-size: 19pt; }
+  .report-print-heading dl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 9pt; }
+  .report-print-heading dt { font-weight: bold; }
+  .report-print-heading dd { margin: 0; overflow-wrap: anywhere; }
+  .report-print-heading p { font-size: 9pt; }
+  .train-layout, .trend-layout { display: block; padding: 0; }
+  .chart-section, .metrics-section, .train-baseline-card { margin: 12px 0; break-inside: avoid; }
+  .table-scroll, .train-chart-scroll { overflow: visible; }
+  .train-chart { min-width: 0; }
+  .trend-table { min-width: 0; width: 100%; font-size: 9pt; }
+  .trend-table th, .trend-table td { white-space: normal; overflow-wrap: anywhere; }
+  .trend-table button { display: inline; padding: 0; font: inherit; color: inherit; }
+  .trend-table thead span[aria-hidden] { display: none; }
+  .results-disclosure { border: 0; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  .on-time-echart svg, .station-chart svg { max-width: 100%; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

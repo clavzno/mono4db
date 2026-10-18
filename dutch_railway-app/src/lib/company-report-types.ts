@@ -1,3 +1,4 @@
+import type { ExportableResult } from "./report-export-types";
 import type { TimePeriod } from "./station-report-types";
 
 export interface CompanyRow {
@@ -8,8 +9,9 @@ export interface CompanyRow {
   rank: number;
 }
 
-export interface CompanyReport {
+export interface CompanyReport extends ExportableResult {
   timeOfDay: TimePeriod;
+  selectedCompanies?: string[];
   rows: CompanyRow[];
 }
 

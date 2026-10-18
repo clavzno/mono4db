@@ -1,6 +1,8 @@
 "use client";
 
 import { validDate } from "@/lib/on-time-report-types";
+import { ReportExportProvider, ExportButtons } from "./report-export";
+import type { ExportReportId } from "@/lib/report-export-types";
 import { useState } from "react";
 import Link from "next/link";
 import { OnTimeResults } from "./on-time-results";
@@ -33,11 +35,11 @@ function ReportFilters({ report, filters, onChange, companies, companiesReady }:
   })}<div className="date-range">{(["from", "to"] as const).map((key) => <div className="filter-field" key={key}><label htmlFor={key}>{key === "from" ? "From" : "To"}</label><input id={key} type="date" min="2025-01-01" max="2025-12-31" value={filters[key]} onInput={(event) => onChange(key, event.currentTarget.value)} required /></div>)}</div></div>;
 }
 
-function ReportActions({ onReset, runDisabled = false, busy = false }: { onReset: () => void; runDisabled?: boolean; busy?: boolean }) {
-  return <div className="report-actions"><div className="action-group"><button type="submit" className="button primary" disabled={runDisabled} aria-busy={busy}>{busy ? "Running query…" : "Run Query"}</button><button type="button" className="button" onClick={onReset}>Reset Filters</button></div><div className="action-group"><button type="button" className="button" disabled title="Available when report results are connected">Download Report</button><button type="button" className="button" disabled title="Available when report results are connected">Export CSV</button></div></div>;
+function ReportActions({ onReset, exportId, exportDisabled, runDisabled = false, busy = false }: { onReset: () => void; exportId: ExportReportId; exportDisabled: boolean; runDisabled?: boolean; busy?: boolean }) {
+  return <div className="report-actions"><div className="action-group"><button type="submit" className="button primary" disabled={runDisabled} aria-busy={busy}>{busy ? "Running query…" : "Run Query"}</button><button type="button" className="button" onClick={onReset}>Reset Filters</button></div><ExportButtons reportId={exportId} disabled={exportDisabled} /></div>;
 }
 
-export function RailwayDashboard({ initialReport = "on-time" }: { initialReport?: ReportId }) {
+function RailwayDashboardContent({ initialReport = "on-time" }: { initialReport?: ReportId }) {
   const [selected, setSelected] = useState<ReportId>(initialReport);
   const [configurations, setConfigurations] = useState<Record<ReportId, Filters>>(() => Object.fromEntries(reports.map((report) => [report.id, defaultsForReport(report.id)])) as Record<ReportId, Filters>);
   const [notice, setNotice] = useState<{ error: boolean; text: string } | null>(null);
@@ -97,7 +99,7 @@ export function RailwayDashboard({ initialReport = "on-time" }: { initialReport?
           }
         }}>
           <ReportFilters report={report} filters={filters} onChange={changeFilter} companies={companyOptions.companies} companiesReady={companyOptions.companyStatus === "ready"} />
-          <ReportActions busy={queryBusy} runDisabled={queryDisabled} onReset={() => { setConfigurations((previous) => ({ ...previous, [selected]: defaultsForReport(selected) })); setNotice(null); }} />
+          <ReportActions exportId={selected === "trains" ? "report-3" : "report-1"} exportDisabled={queryBusy || !(selected === "trains" ? trainReport.result : onTimeReport.result)} busy={queryBusy} runDisabled={queryDisabled} onReset={() => { setConfigurations((previous) => ({ ...previous, [selected]: defaultsForReport(selected) })); setNotice(null); }} />
         </form>
       </section>
       {notice ? <div className={`notice ${notice.error ? "notice-error" : "notice-success"}`} role={notice.error ? "alert" : "status"}><span>{notice.text}</span><button type="button" aria-label="Dismiss message" onClick={() => setNotice(null)}>×</button></div> : null}
@@ -120,4 +122,8 @@ export function RailwayDashboard({ initialReport = "on-time" }: { initialReport?
       <div hidden={selected !== "companies"}><CompanyReport /></div>
     </main>
   </div>;
+}
+
+export function RailwayDashboard(props: { initialReport?: ReportId }) {
+  return <ReportExportProvider><RailwayDashboardContent {...props} /></ReportExportProvider>;
 }

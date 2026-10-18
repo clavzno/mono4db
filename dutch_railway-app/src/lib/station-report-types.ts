@@ -1,3 +1,4 @@
+import type { ExportableResult } from "./report-export-types";
 export const timePeriods = ["morning", "afternoon", "night"] as const;
 export type TimePeriod = (typeof timePeriods)[number];
 export type StationRow = {
@@ -6,4 +7,4 @@ export type StationRow = {
   averageDelayChange: number;
   totalStops: number;
 };
-export type StationReport = { timeOfDay: TimePeriod; from: string; to: string; recovery: boolean; rows: StationRow[] };
+export type StationReport = ExportableResult & { timeOfDay: TimePeriod; from: string; to: string; recovery: boolean; rows: StationRow[] };

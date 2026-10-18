@@ -1,3 +1,4 @@
+import type { ExportableResult } from "./report-export-types";
 export type TrainRow = {
   trainId: string;
   rate: number;
@@ -5,7 +6,7 @@ export type TrainRow = {
   gap: number;
 };
 
-export type TrainReport = {
+export type TrainReport = ExportableResult & {
   companyName: string;
   requestedLimit: number;
   from: string;
