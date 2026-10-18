@@ -1,0 +1,63 @@
+\documentclass[tikz, border=4pt]{standalone}
+\input{qpo_style}
+\begin{document}
+\begin{tikzpicture}
+
+% ---------------- Baseline ----------------
+\node[tbl] (bs) {Scan\\[-1pt]{\sub fact\_stop, served stops}};
+\node[op, above=of bs] (bjt) {Join\\[-1pt]{\sub morning arrivals}};
+\node[tbl, small, right=4mm of bjt] (btime) {dim\_time};
+\node[op, hot, above=of bjt] (bjs) {Join\\[-1pt]{\hsub station name on every stop}};
+\node[tbl, small, right=4mm of bjs] (bstat) {dim\_station};
+\node[op, hot, above=of bjs] (ba) {Aggregate\\[-1pt]{\hsub station name, time of day}};
+\node[op, above=of ba] (bo) {Sort\\[-1pt]{\sub average delay change}};
+\node[op, above=of bo] (bl) {Limit 5};
+\node[op, fill=groupfill, above=of bl] (br) {Result\\[-1pt]{\sub 5 rows}};
+
+\draw[flow] (bs) -- (bjt);
+\draw[flow] (btime) -- (bjt);
+\draw[flow] (bjt) -- (bjs);
+\draw[hotflow] (bstat) -- (bjs);
+\draw[flow] (bjs) -- (ba);
+\draw[flow] (ba) -- (bo);
+\draw[flow] (bo) -- (bl);
+\draw[flow] (bl) -- (br);
+
+\node[callout, below=2mm of bs, align=center] (bnote)
+    {The station is joined to every stop row\\before the rows are grouped};
+
+\begin{scope}[on background layer]
+  \node[panel, fit=(bs)(br)(bstat)(bnote)] (bp) {};
+\end{scope}
+\node[lbl, anchor=south] at (bp.north) {Baseline};
+
+% ---------------- Optimized ----------------
+\node[tbl, right=24mm of bs -| bstat.east, anchor=west] (os) {Scan\\[-1pt]{\sub fact\_stop, served stops}};
+\node[op, above=of os] (ojt) {Join\\[-1pt]{\sub morning arrivals}};
+\node[tbl, small, right=4mm of ojt] (otime) {dim\_time};
+\node[op, hot, above=of ojt] (oa) {Aggregate\\[-1pt]{\hsub station code, time of day}};
+\node[op, hot, above=of oa] (ojs) {Join\\[-1pt]{\hsub one row per station}};
+\node[tbl, small, right=4mm of ojs] (ostat) {dim\_station};
+\node[op, above=of ojs] (oo) {Sort\\[-1pt]{\sub average delay change}};
+\node[op, above=of oo] (ol) {Limit 5};
+\node[op, fill=groupfill, above=of ol] (or) {Result\\[-1pt]{\sub 5 rows}};
+
+\draw[flow] (os) -- (ojt);
+\draw[flow] (otime) -- (ojt);
+\draw[flow] (ojt) -- (oa);
+\draw[flow] (oa) -- (ojs);
+\draw[hotflow] (ostat) -- (ojs);
+\draw[flow] (ojs) -- (oo);
+\draw[flow] (oo) -- (ol);
+\draw[flow] (ol) -- (or);
+
+\node[callout, below=2mm of os, align=center] (onote)
+    {The stops are grouped by station code first;\\the names are joined to the grouped rows only};
+
+\begin{scope}[on background layer]
+  \node[panel, fit=(os)(or)(ostat)(onote)] (opp) {};
+\end{scope}
+\node[lbl, anchor=south] at (opp.north) {Optimized};
+
+\end{tikzpicture}
+\end{document}

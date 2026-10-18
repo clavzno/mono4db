@@ -1,0 +1,28 @@
+% Shared preamble for the qpo_*.tex query plan figures.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, calc}
+
+\definecolor{accent}{HTML}{2F5D8C}
+\definecolor{groupfill}{HTML}{EEF3F8}
+\definecolor{taskfill}{HTML}{FFFFFF}
+\definecolor{note}{HTML}{555555}
+\definecolor{hot}{HTML}{C0561B}
+\definecolor{hotfill}{HTML}{FCEBDD}
+
+\newcommand{\sub}{\tiny\color{note}}
+\newcommand{\hsub}{\tiny\color{hot}}
+
+\tikzset{
+    every picture/.style={font=\sffamily\scriptsize, node distance=4mm},
+    op/.style={draw=accent, fill=taskfill, rounded corners=2pt, line width=0.6pt,
+               minimum width=30mm, minimum height=7mm, align=center, inner sep=2pt},
+    tbl/.style={op, fill=groupfill},
+    small/.style={minimum width=18mm},
+    hot/.style={draw=hot, fill=hotfill, line width=1pt},
+    flow/.style={-{Stealth[length=2mm]}, accent, line width=0.7pt},
+    hotflow/.style={flow, color=hot, line width=0.9pt},
+    panel/.style={draw=accent, dashed, rounded corners=4pt, line width=0.6pt, inner sep=3mm},
+    lbl/.style={font=\sffamily\scriptsize\bfseries, text=accent},
+    callout/.style={font=\sffamily\tiny, text=hot, align=left},
+}
