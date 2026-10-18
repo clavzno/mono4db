@@ -147,16 +147,16 @@ This set of guidelines for formatting your research paper has been adapted from 
 % 
 %   Then mark it after \item
 % ]
-During the conduct of this hands-on activity, we used Claude Opus 5.5 to assist with the following tasks:
+During the conduct of this hands-on activity, we used Claude Opus 5.5 to assist with the following tasks. The full prompts are in \texttt{dutch\_railway-docs/prompts/} of our repository.
 \begin{itemize}
-  \item Help understand documentation of Docker and Apache Airflow. 
-  \textbf{Sample prompt}: \emph{Do not give me specific code, simply guide me like a teacher. Can you help
-  me understand [what Apache Airflow is for]/[how to integrate it into Docker]. I have experience with data
-  modelling so try to use analogies in that field.}
+  \item Help understand documentation of Docker and Apache Airflow.
+  \textbf{Sample prompt}: \emph{I'm a student building a data warehouse project. I'm comfortable with data modelling (star schemas, fact and dimension tables, ETL concepts) but new to [Apache Airflow / running Airflow in Docker]. Act as a teacher, not a coder: do not write code or config for me. Instead, (1) explain what [the tool / the integration] is for and what problem it solves, in a few short paragraphs; (2) map its core ideas to data modelling concepts I already know, and say where each analogy breaks down; (3) point me to the parts of the official documentation I should read first, in order; and (4) end with 3 questions I should be able to answer once I understand it, so I can check myself. If something depends on a version or setup detail, ask me instead of assuming.}
   \item \LaTeX~formatting and ACM template formatting.
-  \textbf{Sample prompt}: \emph{Refer to the ACM template we have in this project. Can you help me format the tables in the entire report.}
-    \item Figure creation using TikZ.
-  \textbf{Sample prompt}: \emph{Refer to the schema we have created. Can you create a TikZ picture of the schema to be used in the report?}
+  \textbf{Sample prompt}: \emph{Our report uses the ACM \texttt{acmart} class with the \texttt{sigconf} option (see \texttt{paper.tex}). Please reformat every table in \texttt{paper.tex} and \texttt{chapters/*.tex} so they follow the ACM template: use \texttt{booktabs} rules and no vertical lines; put the caption above the table, and give each table a label and a description for accessibility; make tables fit the column, using \texttt{table*} only when a table cannot fit in one column; and right-align numbers with thousands separators. Do not change any numbers or wording inside the tables. When you're done, list each table you changed and what you changed, and point out any table you weren't sure about.}
+  \item Figure creation using TikZ.
+  \textbf{Sample prompt (schema)}: \emph{Using the warehouse schema in our DDL (fact tables \texttt{fact\_service} and \texttt{fact\_stop}, dimension tables \texttt{dim\_date}, \texttt{dim\_time}, \texttt{dim\_station}), create a TikZ entity-relationship diagram for our ACM two-column paper. Make it a standalone file in \texttt{figures/}, so it can be compiled to PNG or PDF and included as an image. Show each table with its columns and mark primary and foreign keys. Visually separate fact tables from dimension tables, and draw one line per foreign key with 1 and N labels. Match the colours of our other figures and keep the text readable at full page width. Take the table and column names from the DDL; don't make any up. Compile the file and check that nothing overlaps.}
+
+  \textbf{Sample prompt (query plans)}: \emph{For each query in \texttt{dutch\_railway/qpo/queries/}, create a TikZ figure for our ACM paper that compares the baseline plan with the optimized plan. Put the baseline on the left and the optimized plan on the right, as bottom-up operator trees. Highlight the operators that differ between the two plans in one accent colour, and add a one-line note under each side saying why the optimized version is faster. Use real numbers from the saved \texttt{EXPLAIN ANALYZE} output where they are available; if a plan isn't saved or looks stale, draw that side from the SQL and tell me. Use one shared style file that matches our existing figures, and make each figure a standalone file that compiles to PNG. Insert the figures into \texttt{chapters/qpo.tex} with captions and descriptions. Compile every figure, check that the layouts don't overlap, and tell me about anything you could not verify.}
 \end{itemize}
 
 Statement of Accountability. By submitting this report, we explicitly affirm the following:
