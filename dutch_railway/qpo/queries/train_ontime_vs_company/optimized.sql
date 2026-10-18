@@ -1,5 +1,3 @@
-CREATE INDEX ON fact_service (company_name);
-
 WITH train AS (
 	SELECT
 		fsv.company_name,
@@ -32,4 +30,4 @@ SELECT
 	ROUND(avg_company_delay - avg_train_delay, 2) AS company_delay_gap
 FROM calc
 ORDER BY company_delay_gap ASC
-LIMIT 5 -- EDIT HERE WITH NUM OF TRAINS TO SHOW;
+LIMIT 5;
