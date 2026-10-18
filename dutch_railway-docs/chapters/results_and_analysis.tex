@@ -1,6 +1,17 @@
 \section{Results and Analysis}
 \label{sec:results_and_analysis}
 
+\subsection{QPO Implementation}
+\label{subsec:qpo_implementation}
+
+Each report has two versions of its query: unoptimized query and the optimized query, together with any indices the optimization needs.
+
+\subsubsection{Functional testing}
+Before any timing, we check that the optimized query returns exactly the same result as its baseline, which we treat as the correct answer. The two results are compared row by row, including duplicate rows and the column names, while the order of the rows is ignored. A query pair with even one differing row fails the functional check.
+
+\subsubsection{Performance testing}
+Each query is then run once as a warm-up and three more times for measurement. We record the median execution time and the cost that PostgreSQL's planner estimates for the query (Table~\ref{tab:results}). Every run happens inside a transaction that is rolled back afterwards, so an index created for one optimized query never speeds up another query or a later baseline.
+
 \begin{table}[htbp]
     \centering
     \footnotesize
