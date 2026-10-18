@@ -3,7 +3,7 @@
 Submit to MCO1: Query Processing Technical Report:
 
 STADVDB-MCO1-Group12-Paper.PDF contains final PDF
-TADVDB-MCO1-Group12-Slides.PDF contains slides PDF
+STADVDB-MCO1-Group12-Slides.PDF contains slides PDF
 
 Submit to MCO1 - Supplementary Materials:
 

@@ -1,6 +1,8 @@
 # README
 
-Last updated: 10/19/26 4:19AM
+Last updated: 10/19/26 6:32AM
+
+Deployment link: mono4db-dutch.up.railway.app
 
 This is the accompanying web application to run and display the results of the queries. 
 
