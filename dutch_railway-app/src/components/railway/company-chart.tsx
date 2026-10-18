@@ -22,7 +22,7 @@ export default function CompanyChart({ rows }: { rows: CompanyRow[] }) {
       color: ["#26588c", "#22745d", "#a86422", "#8055a6", "#b6435d", "#347f91", "#676d31", "#725044"],
       grid: { left: 15, right: 20, top: 60, bottom: 45, containLabel: true },
       legend: { type: "scroll", top: 5 },
-      tooltip: { trigger: "axis", renderMode: "richText", valueFormatter: (value: number) => `${value.toFixed(2)}%` },
+      tooltip: { trigger: "axis", renderMode: "richText", valueFormatter: (value: unknown) => typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)}%` : "N/A" },
       xAxis: { type: "category", data: monthNames.map((month) => month.slice(0, 3)), boundaryGap: false },
       yAxis: { type: "value", min: 0, max: 100, axisLabel: { formatter: "{value}%" }, splitLine: { lineStyle: { color: "#e6ebf2" } } },
       series: companies.map((name) => ({ name, type: "line", connectNulls: false, symbolSize: 7, emphasis: { focus: "series" }, data: monthNames.map((_, index) => values.get(`${name}:${index + 1}`) ?? null) })),

@@ -34,6 +34,8 @@ h1 { font-size: clamp(25px, 3vw, 32px); font-weight: 650; letter-spacing: -1px; 
 .filter-field label, .filter-field legend { display: block; font-size: 11px; font-weight: 600; margin-bottom: 9px; color: #46556b; }
 .filter-field fieldset { min-width: 0; }
 .filter-field select, .filter-field input { width: 100%; min-width: 0; height: 40px; border: 1px solid #d8dfe9; border-radius: 5px; background: #fff; padding: 0 10px; color: #34455f; font-size: 12px; }
+.filter-field select[multiple] { height: 18rem; padding: 8px 10px; }
+.filter-field select[multiple] option { padding: 6px 4px; }
 .date-range { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .segmented-control { display: flex; padding: 3px; border: 1px solid #dce3ec; background: #f3f5f8; border-radius: 5px; height: 40px; }
 .segmented-control button { flex: 1; padding: 0 7px; font-size: 11px; color: #69758a; border-radius: 3px; }
@@ -46,7 +48,6 @@ h1 { font-size: clamp(25px, 3vw, 32px); font-weight: 650; letter-spacing: -1px; 
 .button.primary:hover { background: #0b2f5a; }
 .button.primary span { color: var(--rail-yellow); font-size: 19px; }
 .button:disabled { color: #8b96a6; background: #f8f9fb; border-color: #e6eaf0; }
-.action-divider { width: 1px; height: 20px; background: #e2e7ee; margin: 0 5px; }
 .text-button { font-size: 11px; color: #586c86; padding: 8px 5px; }
 .text-button:hover { color: #123e73; text-decoration: underline; }
 .results-panel { margin-top: 24px; background: #fff; border: 1px solid #dde4ed; border-radius: 9px; }
@@ -70,7 +71,7 @@ h1 { font-size: clamp(25px, 3vw, 32px); font-weight: 650; letter-spacing: -1px; 
 .page-footer { padding: 21px 0 0; display: flex; justify-content: space-between; gap: 15px; color: #8390a2; font-size: 10px; }
 @media (min-width: 1500px) { .empty-state { min-height: 410px; } }
 @media (max-width: 1100px) { .filter-grid { grid-template-columns: 1fr 1fr; } .report-tab { padding-right: 12px; padding-left: 12px; } .report-navigation { gap: 8px; } }
-@media (max-width: 700px) { .header-inner { padding: 18px 20px; } .dashboard-main { padding: 26px 18px 18px; } .workspace-label { display: none; } .report-navigation { align-items: start; flex-direction: column; gap: 0; } .report-links { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 0; } .report-tab { text-align: left; padding: 12px 8px; font-size: 11px; } .panel-heading { padding: 20px 18px 0; } .filter-grid { padding: 22px 18px; gap: 20px 14px; } .date-range { grid-column: 1 / -1; } .report-actions { padding: 16px 18px; } .action-divider { display: none; } .empty-state { min-height: 290px; } .brand { font-size: 16px; } .dataset-badge { font-size: 10px; } .results-toolbar { padding: 16px 18px; } }
+@media (max-width: 700px) { .header-inner { padding: 18px 20px; } .dashboard-main { padding: 26px 18px 18px; } .workspace-label { display: none; } .report-navigation { align-items: start; flex-direction: column; gap: 0; } .report-links { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 0; } .report-tab { text-align: left; padding: 12px 8px; font-size: 11px; } .panel-heading { padding: 20px 18px 0; } .filter-grid { padding: 22px 18px; gap: 20px 14px; } .date-range { grid-column: 1 / -1; } .report-actions { padding: 16px 18px; }  .empty-state { min-height: 290px; } .brand { font-size: 16px; } .dataset-badge { font-size: 10px; } .results-toolbar { padding: 16px 18px; } }
 @media (max-width: 380px) { .filter-grid { grid-template-columns: 1fr; } .dataset-badge { display: none; } }
 
 /* Underperforming trains: full-dataset rankings and company comparison. */
@@ -90,13 +91,13 @@ h1 { font-size: clamp(25px, 3vw, 32px); font-weight: 650; letter-spacing: -1px; 
 .chart-settings input { accent-color: var(--rail-blue); }
 .train-chart-scroll { overflow-x: auto; margin-top: 26px; }
 .train-chart { min-width: 340px; }
-.train-chart-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 48px; gap: 12px; align-items: center; margin-bottom: 18px; }
+.train-chart-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 80px; gap: 12px; align-items: center; margin-bottom: 18px; }
 .train-id { font-size: 11px; color: #526780; font-variant-numeric: tabular-nums; }
 .train-track { position: relative; height: 28px; background: repeating-linear-gradient(to right, #f3f6fa 0, #f3f6fa calc(25% - 1px), #dfe6ef calc(25% - 1px), #dfe6ef 25%); border-left: 1px solid #dce3ed; }
 .train-bar { height: 100%; background: #26588c; border-radius: 0 3px 3px 0; }
 .train-baseline { position: absolute; top: -5px; bottom: -5px; width: 3px; background: #d7a900; }
 .train-rate { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-.train-axis { display: flex; justify-content: space-between; margin: 0 60px 0 76px; border-top: 1px solid #dce3ed; padding-top: 10px; color: #708098; font-size: 10px; }
+.train-axis { display: flex; justify-content: space-between; margin: 0 92px 0 76px; border-top: 1px solid #dce3ed; padding-top: 10px; color: #708098; font-size: 10px; }
 .train-axis-title { text-align: center; color: #66788e; font-size: 11px; margin-top: 17px; }
 .train-legend { display: flex; align-items: center; justify-content: center; gap: 8px; color: #66788e; font-size: 10px; margin-top: 14px; }
 .train-legend span { width: 12px; height: 3px; background: #d7a900; }
@@ -143,6 +144,7 @@ h1 { font-size: clamp(25px, 3vw, 32px); font-weight: 650; letter-spacing: -1px; 
 .results-disclosure { border: 1px solid #dce3ed; border-radius: 7px; background: #fff; }
 .results-disclosure summary { display: flex; align-items: center; justify-content: space-between; list-style: none; padding: 18px 22px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .results-disclosure summary::-webkit-details-marker { display: none; }
+.disclosure-chevron { flex-shrink: 0; }
 .results-disclosure[open] .disclosure-chevron { transform: rotate(180deg); }
 .row-count { margin-left: 10px; color: #77869b; font-size: 10px; font-weight: 400; }
 .table-scroll { overflow-x: auto; border-top: 1px solid #e3e9f0; }

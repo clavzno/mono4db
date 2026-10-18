@@ -12,14 +12,14 @@ export function useTrainReport() {
 
   useEffect(() => () => reportRequest.current?.abort(), []);
 
-  const run = useCallback(async (company: string, limit: number) => {
+  const run = useCallback(async (company: string, limit: number, from: string, to: string) => {
     if (reportRequest.current) return;
     const controller = new AbortController();
     reportRequest.current = controller;
     setBusy(true);
     setError(null);
     try {
-      const params = new URLSearchParams({ company, limit: String(limit) });
+      const params = new URLSearchParams({ company, limit: String(limit), from, to });
       const response = await fetch(`/api/reports/underperforming-trains?${params}`, { signal: controller.signal, cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
