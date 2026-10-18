@@ -71,7 +71,24 @@ ORDER BY cur.company_name, cur.quarter, cur.month, cur.week;
 
 This report lets users see whether reliability is improving or worsening over time.
 
-
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \caption{Sample of Report 1}
+    \label{tab:report-1-sample}
+    \begin{tabularx}{\columnwidth}{l *{6}{>{\raggedleft\arraybackslash}X}}
+        \toprule
+        \textbf{company\_name} & \textbf{quarter} & \textbf{month} & \textbf{week} & \textbf{total\_stops} & \textbf{on\_time\_rate} & \textbf{rate\_change} \\
+        \midrule
+        Eurobahn & 1 & 1 & 1 & 3899  & 77.02 & Null \\
+        Eurobahn & 1 & 1 & 2 & 5559  & 76.36 & -0.66 \\
+        Eurobahn     & 1& 1     & Null & 23900       & 67.07        & Null        \\
+        Eurobahn     & 1       & 2     & Null & 19787       & 83.96        & 16.89      \\
+        Eurobahn     & 1  & Null  & Null& 665964 & 74.90 & Null \\
+        Eurobahn   & 2       &Null & Null &53706 & 73.07  & -1.83\\
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
 
 \subsection{Report 2: Company Monthly Rank by On-Time Rate}
@@ -125,6 +142,24 @@ ORDER BY cur.month, rank;
 \end{lstlisting}
 
 This report shows which companies are most reliable at different times of the day.
+
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \caption{Sample of Report 2}
+    \label{tab:report-2-sample}
+    \begin{tabularx}{\columnwidth}{l *{6}{>{\raggedleft\arraybackslash}X}}
+        \toprule
+        \textbf{company\_name} & \textbf{month} & textbf{on\_time\_rate} & \textbf{avg\_arrival\_delay} & \textbf{rank} \\
+        \midrule
+        DB           & January & 100.0        & 0.00              & 1    \\
+        NMBS         & January & 78.86        & 0.99              & 2    \\
+        NS           & January & 68.62        & 0.85              & 3    \\
+        Eurobahn     & January & 68.25        & 1.57              & 4    \\
+        Blauwnet     & January & 67.16        & 0.66              & 5    \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
 
 
@@ -182,6 +217,22 @@ LIMIT 5; -- EDIT HERE WITH NUM OF TRAINS TO SHOW
 
 This report helps a company decide which trains are problematic and may need inspection.
 
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \caption{Sample of Report 3}
+    \label{tab:report-3-sample}
+    \begin{tabularx}{\columnwidth}{l *{6}{>{\raggedleft\arraybackslash}X}}
+        \toprule
+        \textbf{company\_name} & \textbf{train\_id} & \textbf{avg\_company\_delay} & \textbf{train\_on\_time\_rate} & \textbf{ avg\_train\_delay} & \textbf{company\_delay\_gap} \\
+        \midrule
+        Eurobahn     & 20396    & 72.2              & 0.0                & 57.50           & -72.2       \\
+        Eurobahn     & 20374    & 72.2              & 31.2               & 5.41            & -41.0       \\
+        Eurobahn     & 20397    & 72.2              & 33.3               & 13.17           & -38.9       \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
 
 
 
@@ -216,6 +267,22 @@ ORDER BY avg_delay_change DESC;
 \end{lstlisting}
 
 This report shows which stations are bottlenecks and which help recover from delay, dependent on the time of day.
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \caption{Sample of Report 4}
+    \label{tab:report-4-sample}
+    \begin{tabularx}{\columnwidth}{l *{3}{>{\raggedleft\arraybackslash}X}}
+        \toprule
+        \textbf{station\_name} & \textbf{time\_of\_day} & \textbf{avg\_delay\_change} & \textbf{total\_stops}\\
+        \midrule
+        Emmerich     & afternoon   & +1.09            & 5130        \\
+        Obdam        & afternoon   & +0.76            & 8679        \\
+        Loppersum    & afternoon   & +0.75            & 8020        \\
+        Mantgum      & afternoon   & +0.68            & 8003        \\  
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
 \subsection{Application Development}
 
