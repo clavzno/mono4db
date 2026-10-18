@@ -128,33 +128,41 @@ ORDER BY cur.month, rank;
 `;
 
 // Query 3. Parameters: [companyName, trainLimit].
-// Adapted for Report 3: rank by on-time rate and compare against all company arrivals.
+// Source: dutch_railway/qpo/queries/train_ontime_vs_company/optimized.sql
+// parameterized, ranked by lowest on-time rate, compared against the company on-time rate
 export const underperformingTrainsQuery = `
-WITH train_stats AS (
+WITH train AS (
     SELECT
+        fsv.company_name,
         fst.train_id,
-        COUNT(*) AS eligible_arrivals,
-        COUNT(*) FILTER (WHERE fst.arrival_delay = 0) AS on_time_arrivals,
-        AVG(fst.arrival_delay) AS average_delay
+        COUNT(*) AS total_stops,
+        SUM(fst.arrival_delay) AS total_delay,
+        COUNT(*) FILTER (WHERE fst.arrival_delay = 0) AS on_time
     FROM fact_stop AS fst
     JOIN fact_service AS fsv ON fsv.rdt_id = fst.rdt_id
-    WHERE fsv.company_name = $1
-      AND fst.cancel_status IN ('none', 'departure-only')
-      AND fst.arrival_delay IS NOT NULL
-    GROUP BY fst.train_id
-), company AS (
-    SELECT 100.0 * SUM(on_time_arrivals) / NULLIF(SUM(eligible_arrivals), 0) AS on_time_rate
-    FROM train_stats
+    WHERE fst.cancel_status IN ('none', 'departure-only')
+    AND fst.arrival_delay IS NOT NULL
+    AND fsv.company_name = $1
+    GROUP BY fsv.company_name, fst.train_id
+),
+calc AS (
+    SELECT
+        train_id,
+        total_stops,
+        ROUND(100.0 * SUM(on_time) OVER (PARTITION BY company_name)
+              / SUM(total_stops) OVER (PARTITION BY company_name), 2) AS company_on_time_rate,
+        ROUND(100.0 * on_time / total_stops, 2) AS train_on_time_rate,
+        ROUND(total_delay::numeric / total_stops, 2) AS avg_train_delay
+    FROM train
 )
 SELECT
-    train.train_id::text AS train_id,
-    100.0 * train.on_time_arrivals / train.eligible_arrivals AS train_on_time_rate,
-    train.average_delay AS avg_train_delay,
-    company.on_time_rate AS company_on_time_rate,
-    100.0 * train.on_time_arrivals / train.eligible_arrivals - company.on_time_rate AS rate_gap
-FROM company
-LEFT JOIN train_stats AS train ON TRUE
-ORDER BY train_on_time_rate ASC, train.train_id ASC
+    train_id::text AS train_id,
+    train_on_time_rate,
+    avg_train_delay,
+    company_on_time_rate,
+    ROUND(train_on_time_rate - company_on_time_rate, 2) AS rate_gap
+FROM calc
+ORDER BY train_on_time_rate ASC, train_id ASC
 LIMIT $2;
 `;
 
