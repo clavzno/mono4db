@@ -1,6 +1,6 @@
 # README
 
-Last updated: 10/18/26 10:07PM
+Last updated: 10/19/26 4:19AM
 
 This is the accompanying web application to run and display the results of the queries. 
 
@@ -29,3 +29,10 @@ If it's your first time cloning the repo:
 - Move to dutch_railway-app, and run: `npm.cmd i` (once, unless packages are updated)
 - To start the app: `npm.cmd run dev`
 - Open the app in your browser through localhost:3000.
+
+If it's not your first rodeo:
+- Run `docker compose up -d` in dutch_railway
+- Run `npm.cmd run dev` in dutch_railway-app
+
+## Deployed version
+

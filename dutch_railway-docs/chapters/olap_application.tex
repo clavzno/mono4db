@@ -288,15 +288,46 @@ This report shows which stations are bottlenecks and which help recover from del
 
 This section covers the application planning and development of the application. 
 
-\subsubsection{Application Specs}
+\subsubsection{Planning and Interface Design}
 
-The group finalized the plans for the queries before the application features and specifications were developed. 
+The development process began with the warehouse schema, which separated service-level and stop-level facts and date, time, and station dimensions for analysis. The group finalized four analytical questions which later informed the filter options, visual presentation choices, and other options in the application specifications. 
 
-\subsection{Additional Filtering}
+The specifications were a generalized list of requirements and features for each page, namely:
+\begin{itemize}
+    \item A multi-select and single-select Company Selector depending on the query. Including a reset filters button.
+    \item A collapsible results table at the end of the report.
+    \item Shared controls across all reports, such as the report options (1--4), the filters panel placement above the actual results, loading states when queries are being run
+    \item Options to download the report as a PDF and outputs (results table and raw SQL output) as CSV.
+\end{itemize} 
 
-/*
-    Company filters were added for Query 2
-    Date range was added for Query 4
-*/
+Based on the expected output of each query, the following charts were also chosen:
+\begin{itemize}
+    \item Query 1: Drill-down bar chart (vertical)
+    \item Query 2: multi-copmany line chart
+    \item Query 3: Bar chart (horizontal)
+    \item Query 4: Heatmap initially, changed to Bar chart (horizontal)
+\end{itemize}
 
-When 
+The initial interface wireframes appear in Appendix~\ref{app:application_wireframes}, Figures~\ref{fig:wireframe_0}--\ref{fig:wireframe_4}.
+
+The application orignally ran locally. It was connected to the PostgreSQL warehouse hosted in Docker through a configured database connection. Since the application was made to run locally, it uses the existing warehouse without requiring a dataset upload feature. Later, the application was deployed to Railway via a forked version of the application. Section~\ref{subsubsec:application_deployment} describes the deployment setup.
+
+The application also supports empty results (as ``N/A''), printing the displayed report to PDF through the browser, and exporting the displayed results table and underlying SQL results as CSV files. These allow users to inspect the aggregated results and focus on relevant subsets of information without modifying the SQL manually. 
+
+\subsubsection{Implementation}
+
+The final application was developed in Next.js, React, and TypeScript, with PostgreSQL as the data source and Apache ECharts for visualizations. Initial development started with the baseline queries as optimization was ongoing, then later the application connected to their corresponding \texttt{optimized.sql} files in the \texttt{dutch\_railway/qpo/queries} folder. The application reads the optimized SQL files and adjusts them based on the filters selected by the user. It then runs the queries and displays the results through charts and tables. This also avoids having to maintain separate copies of the SQL queries in the application.
+
+The final controls or filters were refined to support more specific analyses. Report-1 (On-time Trends) supports company and date selection with quarter-to-month-to-week drill-down and the reverse roll-up operation. The user can select a company or set the query to all companies, choose the reporting level (by quarter, month, or week), period of the year, then select a date range. Report-2 (Company Comparison) combines its original time-of-day selection with a company multi-selector. The SQL obtains monthly rankings for all companies at the selected time of day, then the application limits the displayed rows to the chosen companies. The displayed analysis changes from a single-dimension slice to a dice across time-of-day and company. Report-3 (Underperforming Trains) allows company selection, a number of trains to show (5, 10, 20, or a custom value) along a date range. This produces a dice across company and date. The final ranking compares average arrival delay against the company mean while also displaying train punctuality. Report-4 (Station Delay) adds a date range, time-of-day selector, options to rank stations by largest delay increases or greatest recovery, then offers a train limit (5, 10, 20, custom). The original slice is changed to a dice, across the time and date. The result shows stations with the greatest average delay addition or recovery within the selected period.
+
+\subsubsection{Backend Processing}
+The Next.js backend connects the report interface to the PostgreSQL warehouse. When the user clicks Run Query, the browser sends the selected filters to the server. The server checks that the dates, company selections, and result limits are valid before running the report through the files in \texttt{src\/lib}.
+
+The files in \texttt{lib} handle loading queries, connecting to the database, and preparing results. The \texttt{queries.ts} file reads the optimized SQL files, while \texttt{report-sql.ts} adjusts them to match the selected filters. The application passes filter values separately from the SQL text to keep user input from changing the query's instructions. Finally, \texttt{db.ts} runs the queries using reusable database connections and the connection settings stored in \texttt{DATABASE\_URL}.
+
+After the query finishes, the application prepares the results for the charts and tables. It also includes the selected filters and the original query results for export. The server sends this information back to the browser, which updates the report. If the inputs are invalid or the database query fails, the interface displays an error message.
+
+\subsubsection{Deployment}
+\label{subsubsec:application_deployment}
+
+To prepare the application for Railway, a Dockerfile packages the Next.js application and its required SQL files into a container. The build preserves the existing folder structure so the application can read the queries without changing the files in \texttt{dutch\_railway}. The hosted application requires a separate PostgreSQL database containing a copy of the warehouse and connects to it through \texttt{DATABASE\_URL}. Once deployment and database setup are complete, users can access the reports through a browser without running Docker locally. 
