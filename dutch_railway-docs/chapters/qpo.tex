@@ -2,15 +2,15 @@
 \label{sec:qpo}
 
 Query optimization is the process where a query's performance is improved. This is important as the larger a database grows, the more 
-time and compute resources are needed in order to execute queries. This can both worsen the user experience due to slow execution times, 
+time and compute resources are needed in order to execute queries \cite{ibm-query-optimizaiton}. This can both worsen the user experience due to slow execution times, 
 while also incurring significantly higher computational cost. Three of the relevant query processing techniques applied to this OLAP 
 application are correct database design, indexing, and query restructuring or pre-aggregation.
 
 
 First, database design is a universally key factor in creating fast queries. For example, since the focus of our queries lies in the efficiency of the 
-trains, the fact tables center on the services and stops to reflect it. Additionally, compared to a snowflake schema design, the galaxy schema used allows for 
-significantly less JOINS being utilized, which speeds up the process significantly. While the most optimal dataset in terms of raw speed would 
-be one large table, this would be incredibly impractical, bloated, and difficult to read for humans.  
+trains, the fact tables center on the services and stops to reflect it, and inherently make it easier and faster to make appropriate reports. Additionally, 
+compared to a snowflake schema design, the galaxy schema used allows for significantly less JOINS being utilized, which speeds up the process significantly. 
+While the most optimal dataset in terms of raw speed would  be one large table, this would be incredibly impractical, bloated, and difficult to read for humans. 
 
 \begin{figure*}[t]
 \centering
@@ -21,25 +21,21 @@ be one large table, this would be incredibly impractical, bloated, and difficult
 \end{figure*}
 
 However, a well-designed database does not necessarily mean a query will be efficient. As seen in (Figure~\ref{fig:qpo_report2}), the query is 
-significantly slowed down through the heavy weight of its subqueries, which are run multiple times. This can be resolved through another effective method 
-of query optimization, the use of query restructuring or pre-aggregation. In the case of the first report, the execution time of the query is drastically
+significantly slowed down deu to the heavy weight of its subqueries, which are run multiple times. This can be resolved through another effective method 
+of query optimization, the use of query restructuring or pre-aggregation. In the case of the sexond report, the execution time of the query is drastically
 reduced when utilizing common table expressions that are turned into materialized views. Materialized views essentially store a pre-computed result into 
-the physical memory of the machine, which means the result does not have to be re-joined and re-computed each time it's accessed. While this is greatly effective 
+the physical memory of the machine, meaning the result does not have to be re-joined and re-computed each time it's accessed \cite{datacamp-optimization}. While this is greatly effective 
 for the first report, lowering its runtime to almost a hundredth of its baseline's, it is not as a catch-all solution for optimizing subqueries, as it relies on 
 them being reused multiple times. For example, while the use of a materialized view still reduced  the second report focusing on the on-time rate of 
-companies by about half, it did not reduce it nearly as much since the result is only accessed twice throughout the query. 
+companies by about half, it did not reduce it nearly as much since the result is only accessed twice throughout the query. The third report focusing on underperforming 
+trains per company also utilizes CTEs with some indexing to hold each train's prior information, as well as to hold the results of a window function used to 
+calculate averages.
 
 Another example of pre-aggregation is used in the optimization of report 4. An approximately 33\% reduction was achieved through pre-aggregating the stop 
 fact table's station codes before joining it later on rather than having the JOIN before aggregation. While the baseline was already somewhat quick, minor 
 optimizations like this can make a difference during actual usage.
 
-
 Lastly, indexing is a fairly commonly used optimization technique for frequently accessed columns that are not already primary or foreign keys. This particular 
 method was only really applied for report 3, as the others gained major leaps in optimization already through the use of pre-aggregation and materialized views.
 However, while indexing is useful in OLAP applications, it is not as recommended when creating OLTP applications, as writing new records to indexed tables 
-necessitates a re-indexing of the whole index, which can result in computational overhead.x faster.
-
-\textbf{[i need to add sources, will do tomorrow]}
-
-Cite related literature to support your design decisions  
-
+necessitates a re-indexing of the whole index, which can result in computational overhead \cite{datacamp-optimization}.
