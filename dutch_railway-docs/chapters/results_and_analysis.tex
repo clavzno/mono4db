@@ -37,3 +37,9 @@ This was run on a desktop computer with the following specifications:
         \bottomrule
     \end{tabularx}
 \end{table}
+
+As seen in the figure above, all four queries were able to be optimized from their baseline performance, ranging from a 29\% improvement for 
+query 3, to as high as a 97.8\% improvement for query 2. The database design is a large part of why the resulting optimized queries are fairly quick, 
+all things considered. Designing the database around the questions we wanted to answer led to fewer joins and aggregations needed. The primary key indexes 
+were also useful, as most of our bottlenecks were found, rather, in the way our queries were initially structured. The use of pre-aggregation techniques such 
+as CTEs, specifically materialized views, was really what helped reduce the execution time of our queries, since it saves significant computational overhead.
