@@ -12,15 +12,7 @@ trains, the fact tables center on the services and stops to reflect it, and inhe
 compared to a snowflake schema design, the galaxy schema used allows for significantly less JOINS being utilized, which speeds up the process significantly. 
 While the most optimal dataset in terms of raw speed would  be one large table, this would be incredibly impractical, bloated, and difficult to read for humans. 
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/qpo_report2.png}
-\caption{Baseline and optimized plans of Report 2 (Company Monthly Rank by On-Time Rate). Highlighted nodes mark where the two plans differ.}
-\Description{Two query plan trees side by side. In the baseline, a correlated subquery that scans and joins the fact tables runs once for each of the 176 rows of the outer result. In the optimized plan, the aggregated result is materialized once and the rank is computed from the 176 stored rows.}
-\label{fig:qpo_report2}
-\end{figure*}
-
-However, a well-designed database does not necessarily mean a query will be efficient. As seen in (Figure~\ref{fig:qpo_report2}), the query is 
+However, a well-designed database does not necessarily mean a query will be efficient. For the second report, the baseline query is 
 significantly slowed down deu to the heavy weight of its subqueries, which are run multiple times. This can be resolved through another effective method 
 of query optimization, the use of query restructuring or pre-aggregation. In the case of the sexond report, the execution time of the query is drastically
 reduced when utilizing common table expressions that are turned into materialized views. Materialized views essentially store a pre-computed result into 
