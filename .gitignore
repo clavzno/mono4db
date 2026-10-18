@@ -1,5 +1,9 @@
 .vscode/
-jack/
 .venv
-*.pdf
+
+jack/
 handoff.md
+
+*.pdf
+!ETL.pdf
+!AI Prompts.pdf
